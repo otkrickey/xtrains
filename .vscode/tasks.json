@@ -1,0 +1,30 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "cmake",
+			"label": "xtrains build",
+			"command": "build",
+			"targets": [
+				"all"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"problemMatcher": [],
+			"detail": "Build xtrains project"
+		},
+		{
+			"type": "cmake",
+			"label": "xtrains test",
+			"command": "test",
+			"problemMatcher": [],
+			"detail": "Run xtrains tests",
+			"group": {
+				"kind": "test",
+				"isDefault": true
+			}
+		}
+	]
+}
