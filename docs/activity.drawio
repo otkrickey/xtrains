@@ -1,0 +1,136 @@
+<mxfile host="65bd71144e">
+    <diagram id="AVlL-qscafGyDXCf-uKh" name="Page-1">
+        <mxGraphModel dx="1741" dy="1090" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="2" value="dijkstra" style="shape=umlFrame;whiteSpace=wrap;html=1;width=120;height=30;boundedLbl=1;verticalAlign=middle;align=left;spacingLeft=5;" vertex="1" parent="1">
+                    <mxGeometry width="840" height="480" as="geometry"/>
+                </mxCell>
+                <mxCell id="16" style="edgeStyle=none;html=1;fontFamily=Helvetica;" edge="1" parent="1" source="4" target="14">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="4" value="入力&#10;&lt;start&gt;, &lt;goal&gt;, &lt;depart&gt;" style="shape=umlState;rounded=1;verticalAlign=middle;align=center;absoluteArcSize=1;arcSize=10;umlStateConnection=connPointRefEntry;boundedLbl=1;fontFamily=Helvetica;" vertex="1" parent="1">
+                    <mxGeometry x="60.71" y="75" width="180" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="5" value="Entry1" style="text;verticalAlign=middle;align=center;" vertex="1" parent="4">
+                    <mxGeometry x="-51.42857142857143" y="40" width="64.28571428571429" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="20" value="" style="rhombus;fontFamily=Helvetica;" vertex="1" parent="1">
+                    <mxGeometry x="540.71" y="85" width="30" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="24" style="edgeStyle=none;html=1;entryX=1;entryY=0;entryDx=0;entryDy=0;fontFamily=Helvetica;" edge="1" parent="1" source="21" target="20">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="21" value="最短経路発見 or キューが空" style="shape=note2;boundedLbl=1;whiteSpace=wrap;html=1;size=25;verticalAlign=top;align=left;spacingLeft=5;fontFamily=Helvetica;" vertex="1" parent="1">
+                    <mxGeometry x="480.71" y="20" width="170" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="22" value="while( !pq.empty() )" style="resizeWidth=1;part=1;strokeColor=none;fillColor=none;align=left;spacingLeft=5;fontFamily=Helvetica;" vertex="1" parent="21">
+                    <mxGeometry width="170" height="25" relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="23" style="edgeStyle=none;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontFamily=Helvetica;" edge="1" parent="1" source="14" target="20">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="14" value="変数の初期化" style="html=1;align=right;verticalAlign=top;rounded=1;absoluteArcSize=1;arcSize=50;dashed=0;spacingTop=10;spacingRight=30;fontFamily=Helvetica;" vertex="1" parent="1">
+                    <mxGeometry x="270.71" y="20" width="190" height="160" as="geometry"/>
+                </mxCell>
+                <mxCell id="10" value="到着時間を格納する配列&lt;br&gt;vector&amp;lt;chrono&amp;gt; arrival(n)" style="html=1;align=center;verticalAlign=top;rounded=1;absoluteArcSize=1;arcSize=10;dashed=0;fontFamily=Helvetica;" vertex="1" parent="1">
+                    <mxGeometry x="290.71" y="60" width="150" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="11" value="最短経路を格納するキュー&lt;br&gt;priority_queue&amp;lt;Node&amp;gt; pq" style="html=1;align=center;verticalAlign=top;rounded=1;absoluteArcSize=1;arcSize=10;dashed=0;fontFamily=Helvetica;" vertex="1" parent="1">
+                    <mxGeometry x="290.71" y="120" width="150" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="27" value="pq.empty()" style="html=1;verticalAlign=bottom;labelBackgroundColor=none;endArrow=block;endFill=1;endSize=6;align=left;fontFamily=Helvetica;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="20" target="28">
+                    <mxGeometry x="-0.8824" relative="1" as="geometry">
+                        <mxPoint x="350.71" y="370" as="sourcePoint"/>
+                        <mxPoint x="580.71" y="100" as="targetPoint"/>
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="28" value="結果を出力" style="shape=umlState;rounded=1;verticalAlign=middle;spacingTop=0;absoluteArcSize=1;arcSize=10;umlStateConnection=connPointRefExit;boundedLbl=1;fontFamily=Helvetica;" vertex="1" parent="1">
+                    <mxGeometry x="690.71" y="75" width="140" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="30" value="continue" style="html=1;verticalAlign=bottom;labelBackgroundColor=none;endArrow=block;endFill=1;endSize=6;align=left;fontFamily=Helvetica;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="20" target="32">
+                    <mxGeometry x="-0.2239" relative="1" as="geometry">
+                        <mxPoint x="530.71" y="160" as="sourcePoint"/>
+                        <mxPoint x="700.71" y="160" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="555.71" y="190"/>
+                            <mxPoint x="340.71" y="190"/>
+                        </Array>
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="36" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;fontFamily=Helvetica;" edge="1" parent="1" source="32" target="35">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="32" value="現在地の取得&lt;br&gt;Node n = pq.top()" style="html=1;align=center;verticalAlign=top;rounded=1;absoluteArcSize=1;arcSize=10;dashed=0;fontFamily=Helvetica;" vertex="1" parent="1">
+                    <mxGeometry x="270.71" y="210" width="140" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="29" value="Exit1" style="text;verticalAlign=middle;align=center;fontFamily=Helvetica;" vertex="1" parent="1">
+                    <mxGeometry x="650.71" y="60" width="50" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="38" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;fontFamily=Helvetica;" edge="1" parent="1" source="35" target="37">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="35" value="現在地から次のルート&lt;br&gt;Edge e" style="html=1;align=center;verticalAlign=top;rounded=1;absoluteArcSize=1;arcSize=10;dashed=0;fontFamily=Helvetica;" vertex="1" parent="1">
+                    <mxGeometry x="270.71" y="270" width="140" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="40" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;fontFamily=Helvetica;" edge="1" parent="1" source="37" target="39">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="37" value="乗換時の純粋移動時間&lt;br&gt;trans_time" style="html=1;align=center;verticalAlign=top;rounded=1;absoluteArcSize=1;arcSize=10;dashed=0;fontFamily=Helvetica;" vertex="1" parent="1">
+                    <mxGeometry x="270.71" y="330" width="140" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="42" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;fontFamily=Helvetica;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="39" target="43">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="285.71" y="420" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="39" value="移動後、電車に乗り、&lt;br&gt;次駅に着く時間&lt;br&gt;next_arrival" style="html=1;align=center;verticalAlign=top;rounded=1;absoluteArcSize=1;arcSize=10;dashed=0;fontFamily=Helvetica;" vertex="1" parent="1">
+                    <mxGeometry x="440.71" y="320" width="140" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="43" value="" style="rhombus;fontFamily=Helvetica;" vertex="1" parent="1">
+                    <mxGeometry x="610.71" y="335" width="30" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="44" value="区間の最短記録かどうかを確認" style="shape=note2;boundedLbl=1;whiteSpace=wrap;html=1;size=25;verticalAlign=top;align=left;spacingLeft=5;fontFamily=Helvetica;" vertex="1" parent="1">
+                    <mxGeometry x="430.71" y="410" width="190" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="45" value="if ( next_arrival &lt; arrival[e.to])" style="resizeWidth=1;part=1;strokeColor=none;fillColor=none;align=left;spacingLeft=5;fontFamily=Helvetica;" vertex="1" parent="44">
+                    <mxGeometry width="190" height="25" relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="48" style="edgeStyle=none;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;fontFamily=Helvetica;" edge="1" parent="44" source="45" target="43">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="50" value="continue" style="html=1;verticalAlign=bottom;labelBackgroundColor=none;endArrow=block;endFill=1;endSize=6;align=left;fontFamily=Helvetica;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="43" target="35">
+                    <mxGeometry x="-0.9687" relative="1" as="geometry">
+                        <mxPoint x="590.71" y="125" as="sourcePoint"/>
+                        <mxPoint x="145.71" y="220" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="625.71" y="290"/>
+                        </Array>
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="54" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;fontFamily=Helvetica;" edge="1" parent="1" source="51" target="53">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="51" value="区間の最短記録を更新&lt;br&gt;&lt;span style=&quot;text-align: left;&quot;&gt;arrival[e.to] =&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;text-align: left;&quot;&gt;next_arrival&lt;/span&gt;" style="html=1;align=center;verticalAlign=top;rounded=1;absoluteArcSize=1;arcSize=10;dashed=0;fontFamily=Helvetica;" vertex="1" parent="1">
+                    <mxGeometry x="690.71" y="330" width="140" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="55" style="html=1;entryX=1;entryY=1;entryDx=0;entryDy=0;fontFamily=Helvetica;" edge="1" parent="1" source="53" target="20">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="53" value="次の出発点を設定&lt;br&gt;pq.push(new Node)" style="html=1;align=center;verticalAlign=top;rounded=1;absoluteArcSize=1;arcSize=10;dashed=0;fontFamily=Helvetica;" vertex="1" parent="1">
+                    <mxGeometry x="690.71" y="270" width="140" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="56" value="fastest" style="html=1;verticalAlign=bottom;labelBackgroundColor=none;endArrow=block;endFill=1;endSize=6;align=left;fontFamily=Helvetica;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="43" target="51">
+                    <mxGeometry x="-1" relative="1" as="geometry">
+                        <mxPoint x="640.71" y="420" as="sourcePoint"/>
+                        <mxPoint x="800.71" y="420" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

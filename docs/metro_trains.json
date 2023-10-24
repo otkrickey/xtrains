@@ -1,0 +1,209 @@
+[
+    {
+        "@id": "urn:ucode:_00001C000000000000010000030C46B0",
+        "@type": "odpt:Railway",
+        "dc:date": "2022-03-15T11:00:00+09:00",
+        "@context": "http://vocab.odpt.org/context_odpt.jsonld",
+        "dc:title": "千代田線",
+        "odpt:color": "#00BB85",
+        "owl:sameAs": "odpt.Railway:TokyoMetro.Chiyoda",
+        "odpt:lineCode": "C",
+        "odpt:operator": "odpt.Operator:TokyoMetro",
+        "odpt:railwayTitle": {
+            "en": "Chiyoda Line",
+            "ja": "千代田線",
+            "ko": "치요다선",
+            "zh-Hans": "千代田线",
+            "zh-Hant": "千代田線"
+        },
+        "odpt:stationOrder": [],
+        "odpt:ascendingRailDirection": "odpt.RailDirection:TokyoMetro.KitaAyase",
+        "odpt:descendingRailDirection": "odpt.RailDirection:TokyoMetro.YoyogiUehara"
+    },
+    {
+        "@id": "urn:ucode:_00001C000000000000010000030C46B4",
+        "@type": "odpt:Railway",
+        "dc:date": "2022-03-15T11:00:00+09:00",
+        "@context": "http://vocab.odpt.org/context_odpt.jsonld",
+        "dc:title": "副都心線",
+        "odpt:color": "#9C5E31",
+        "owl:sameAs": "odpt.Railway:TokyoMetro.Fukutoshin",
+        "odpt:lineCode": "F",
+        "odpt:operator": "odpt.Operator:TokyoMetro",
+        "odpt:railwayTitle": {
+            "en": "Fukutoshin Line",
+            "ja": "副都心線",
+            "ko": "후쿠토신선",
+            "zh-Hans": "副都心线",
+            "zh-Hant": "副都心線"
+        },
+        "odpt:stationOrder": [],
+        "odpt:ascendingRailDirection": "odpt.RailDirection:TokyoMetro.Shibuya",
+        "odpt:descendingRailDirection": "odpt.RailDirection:TokyoMetro.Wakoshi"
+    },
+    {
+        "@id": "urn:ucode:_00001C000000000000010000030C46B1",
+        "@type": "odpt:Railway",
+        "dc:date": "2022-03-15T11:00:00+09:00",
+        "@context": "http://vocab.odpt.org/context_odpt.jsonld",
+        "dc:title": "有楽町線",
+        "odpt:color": "#C1A470",
+        "owl:sameAs": "odpt.Railway:TokyoMetro.Yurakucho",
+        "odpt:lineCode": "Y",
+        "odpt:operator": "odpt.Operator:TokyoMetro",
+        "odpt:railwayTitle": {
+            "en": "Yurakucho Line",
+            "ja": "有楽町線",
+            "ko": "유라쿠초선",
+            "zh-Hans": "有乐町线",
+            "zh-Hant": "有樂町線"
+        },
+        "odpt:stationOrder": [],
+        "odpt:ascendingRailDirection": "odpt.RailDirection:TokyoMetro.ShinKiba",
+        "odpt:descendingRailDirection": "odpt.RailDirection:TokyoMetro.Wakoshi"
+    },
+    {
+        "@id": "urn:ucode:_00001C000000000000010000030C46AC",
+        "@type": "odpt:Railway",
+        "dc:date": "2022-03-15T11:00:00+09:00",
+        "@context": "http://vocab.odpt.org/context_odpt.jsonld",
+        "dc:title": "銀座線",
+        "odpt:color": "#FF9500",
+        "owl:sameAs": "odpt.Railway:TokyoMetro.Ginza",
+        "odpt:lineCode": "G",
+        "odpt:operator": "odpt.Operator:TokyoMetro",
+        "odpt:railwayTitle": {
+            "en": "Ginza Line",
+            "ja": "銀座線",
+            "ko": "긴자선",
+            "zh-Hans": "银座线",
+            "zh-Hant": "銀座線"
+        },
+        "odpt:stationOrder": [],
+        "odpt:ascendingRailDirection": "odpt.RailDirection:TokyoMetro.Asakusa",
+        "odpt:descendingRailDirection": "odpt.RailDirection:TokyoMetro.Shibuya"
+    },
+    {
+        "@id": "urn:ucode:_00001C000000000000010000030C46B2",
+        "@type": "odpt:Railway",
+        "dc:date": "2022-03-15T11:00:00+09:00",
+        "@context": "http://vocab.odpt.org/context_odpt.jsonld",
+        "dc:title": "半蔵門線",
+        "odpt:color": "#8F76D6",
+        "owl:sameAs": "odpt.Railway:TokyoMetro.Hanzomon",
+        "odpt:lineCode": "Z",
+        "odpt:operator": "odpt.Operator:TokyoMetro",
+        "odpt:railwayTitle": {
+            "en": "Hanzomon Line",
+            "ja": "半蔵門線",
+            "ko": "한조몬선",
+            "zh-Hans": "半藏门线",
+            "zh-Hant": "半藏門線"
+        },
+        "odpt:stationOrder": [],
+        "odpt:ascendingRailDirection": "odpt.RailDirection:TokyoMetro.Oshiage",
+        "odpt:descendingRailDirection": "odpt.RailDirection:TokyoMetro.Shibuya"
+    },
+    {
+        "@id": "urn:ucode:_00001C000000000000010000030C46AE",
+        "@type": "odpt:Railway",
+        "dc:date": "2022-03-15T11:00:00+09:00",
+        "@context": "http://vocab.odpt.org/context_odpt.jsonld",
+        "dc:title": "日比谷線",
+        "odpt:color": "#B5B5AC",
+        "owl:sameAs": "odpt.Railway:TokyoMetro.Hibiya",
+        "odpt:lineCode": "H",
+        "odpt:operator": "odpt.Operator:TokyoMetro",
+        "odpt:railwayTitle": {
+            "en": "Hibiya Line",
+            "ja": "日比谷線",
+            "ko": "히비야선",
+            "zh-Hans": "日比谷线",
+            "zh-Hant": "日比谷線"
+        },
+        "odpt:stationOrder": [],
+        "odpt:ascendingRailDirection": "odpt.RailDirection:TokyoMetro.KitaSenju",
+        "odpt:descendingRailDirection": "odpt.RailDirection:TokyoMetro.NakaMeguro"
+    },
+    {
+        "@id": "urn:ucode:_00001C000000000000010000030C46AB",
+        "@type": "odpt:Railway",
+        "dc:date": "2022-03-15T11:00:00+09:00",
+        "@context": "http://vocab.odpt.org/context_odpt.jsonld",
+        "dc:title": "丸ノ内線支線",
+        "odpt:color": "#F62E36",
+        "owl:sameAs": "odpt.Railway:TokyoMetro.MarunouchiBranch",
+        "odpt:lineCode": "Mb",
+        "odpt:operator": "odpt.Operator:TokyoMetro",
+        "odpt:railwayTitle": {
+            "en": "Marunouchi Branch Line",
+            "ja": "丸ノ内線支線"
+        },
+        "odpt:stationOrder": [],
+        "odpt:ascendingRailDirection": "odpt.RailDirection:TokyoMetro.NakanoSakaue",
+        "odpt:descendingRailDirection": "odpt.RailDirection:TokyoMetro.Honancho"
+    },
+    {
+        "@id": "urn:ucode:_00001C000000000000010000030C46AD",
+        "@type": "odpt:Railway",
+        "dc:date": "2022-03-15T11:00:00+09:00",
+        "@context": "http://vocab.odpt.org/context_odpt.jsonld",
+        "dc:title": "丸ノ内線",
+        "odpt:color": "#F62E36",
+        "owl:sameAs": "odpt.Railway:TokyoMetro.Marunouchi",
+        "odpt:lineCode": "M",
+        "odpt:operator": "odpt.Operator:TokyoMetro",
+        "odpt:railwayTitle": {
+            "en": "Marunouchi Line",
+            "ja": "丸ノ内線",
+            "ko": "마루노우치선",
+            "zh-Hans": "丸之内线",
+            "zh-Hant": "丸之内線"
+        },
+        "odpt:stationOrder": [],
+        "odpt:ascendingRailDirection": "odpt.RailDirection:TokyoMetro.Ikebukuro",
+        "odpt:descendingRailDirection": "odpt.RailDirection:TokyoMetro.Ogikubo"
+    },
+    {
+        "@id": "urn:ucode:_00001C000000000000010000030C46B3",
+        "@type": "odpt:Railway",
+        "dc:date": "2022-03-15T11:00:00+09:00",
+        "@context": "http://vocab.odpt.org/context_odpt.jsonld",
+        "dc:title": "南北線",
+        "odpt:color": "#00AC9B",
+        "owl:sameAs": "odpt.Railway:TokyoMetro.Namboku",
+        "odpt:lineCode": "N",
+        "odpt:operator": "odpt.Operator:TokyoMetro",
+        "odpt:railwayTitle": {
+            "en": "Namboku Line",
+            "ja": "南北線",
+            "ko": "난보쿠선",
+            "zh-Hans": "南北线",
+            "zh-Hant": "南北線"
+        },
+        "odpt:stationOrder": [],
+        "odpt:ascendingRailDirection": "odpt.RailDirection:TokyoMetro.AkabaneIwabuchi",
+        "odpt:descendingRailDirection": "odpt.RailDirection:TokyoMetro.Meguro"
+    },
+    {
+        "@id": "urn:ucode:_00001C000000000000010000030C46AF",
+        "@type": "odpt:Railway",
+        "dc:date": "2022-03-15T11:00:00+09:00",
+        "@context": "http://vocab.odpt.org/context_odpt.jsonld",
+        "dc:title": "東西線",
+        "odpt:color": "#009BBF",
+        "owl:sameAs": "odpt.Railway:TokyoMetro.Tozai",
+        "odpt:lineCode": "T",
+        "odpt:operator": "odpt.Operator:TokyoMetro",
+        "odpt:railwayTitle": {
+            "en": "Tozai Line",
+            "ja": "東西線",
+            "ko": "도자이선",
+            "zh-Hans": "东西线",
+            "zh-Hant": "東西線"
+        },
+        "odpt:stationOrder": [],
+        "odpt:ascendingRailDirection": "odpt.RailDirection:TokyoMetro.NishiFunabashi",
+        "odpt:descendingRailDirection": "odpt.RailDirection:TokyoMetro.Nakano"
+    }
+]
