@@ -1,5 +1,8 @@
-cmake_minimum_required(VERSION 3.0.0)
+cmake_minimum_required(VERSION 3.10)
 project(xtrains VERSION 0.1.0 LANGUAGES C CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # Find the CURL library
 find_package(CURL REQUIRED)
@@ -7,7 +10,18 @@ find_package(CURL REQUIRED)
 # include(CTest)
 # enable_testing()
 
-add_executable(xtrains.exe main.cpp)
+include_directories(src)
+
+add_executable(xtrains.exe
+  src/main.cpp
+  src/api.cpp
+  src/data.cpp
+  src/station.cpp
+  src/db.cpp
+  src/preprocess.cpp
+  # src/dijkstra.cpp
+  # src/gen_data.cpp
+)
 
 target_link_libraries(xtrains.exe CURL::libcurl)
 
