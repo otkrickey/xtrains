@@ -412,3 +412,6 @@ _deps
 .cmake
 
 .env
+archive
+*.archive.*
+*.archive

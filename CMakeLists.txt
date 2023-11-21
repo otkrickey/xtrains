@@ -15,12 +15,11 @@ include_directories(src)
 add_executable(xtrains.exe
   src/main.cpp
   src/api.cpp
-  src/data.cpp
-  src/station.cpp
   src/db.cpp
+  src/model.cpp
+  src/config.cpp
   src/preprocess.cpp
-  # src/dijkstra.cpp
-  # src/gen_data.cpp
+  src/dijkstra.cpp
 )
 
 target_link_libraries(xtrains.exe CURL::libcurl)

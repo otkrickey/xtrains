@@ -1,4 +1,4 @@
-#include "api.h"
+#include "../include/api.h"
 
 namespace api
 {
@@ -6,15 +6,9 @@ namespace api
     using json = nlohmann::json;
 
     const string base_url = "https://api.odpt.org/api/v4/";
-    const string consumer_key = [consumer_key = getenv("ODPT_CONSUMER_KEY")]() -> string
-    {
-        if (consumer_key == nullptr)
-        {
-            cout << "Please set ODPT_CONSUMER_KEY environment variable." << endl;
-            exit(1);
-        }
-        return consumer_key;
-    }();
+
+    // const string consumer_key = [consumer_key = getenv("ODPT_CONSUMER_KEY")]() -> string
+    const string consumer_key = readApiKey();
 
     map<Endpoint, string> endpoint_map = {
         {Endpoint::Calendar, "odpt:Calendar"},
