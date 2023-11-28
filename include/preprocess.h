@@ -8,9 +8,10 @@
 #include <curl/curl.h>
 #include <nlohmann/json.hpp>
 
-#include "../include/db.h"
-#include "../include/api.h"
-#include "../include/config.h"
+#include "db.h"
+#include "api.h"
+#include "config.h"
+#include "model.h"
 
 namespace preprocess
 {

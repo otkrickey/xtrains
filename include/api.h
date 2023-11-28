@@ -8,7 +8,7 @@
 #include <curl/curl.h>
 #include <nlohmann/json.hpp>
 
-#include "../include/config.h"
+#include "config.h"
 
 namespace api
 {

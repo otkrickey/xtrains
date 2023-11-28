@@ -135,6 +135,11 @@ namespace base
 
         void load()
         {
+            if (isLoaded)
+            {
+                return;
+            }
+
             std::ifstream dataFile("data/" + collectionName + ".bin", std::ios::binary);
 
             if (!dataFile.is_open())
@@ -260,10 +265,7 @@ namespace base
 
         Data show()
         {
-            if (!isLoaded)
-            {
-                load();
-            }
+            load();
             return data;
         }
 
@@ -336,6 +338,15 @@ namespace railway
 
             return {short_id, long_id};
         }
+
+        void display()
+        {
+            load();
+            for (const auto &[k, v] : data)
+            {
+                std::cout << k.first << " " << k.second << " " << v.short_id << " " << v.long_id << std::endl;
+            }
+        }
     };
     int test();
 }
@@ -402,6 +413,15 @@ namespace station
             dataFile.read(&long_id[0], long_id_size);
 
             return {short_id, long_id};
+        }
+
+        void display()
+        {
+            load();
+            for (const auto &[k, v] : data)
+            {
+                std::cout << k.first << " " << k.second << " " << v.short_id << " " << v.long_id << std::endl;
+            }
         }
     };
 
@@ -493,6 +513,15 @@ namespace train
             }
 
             return object;
+        }
+
+        void display()
+        {
+            load();
+            for (const auto &[k, v] : data)
+            {
+                std::cout << k.first << " " << k.second << " " << v.id << " " << v.stops.size() << std::endl;
+            }
         }
     };
 

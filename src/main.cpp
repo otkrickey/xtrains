@@ -1,41 +1,9 @@
-#include "../include/preprocess.h"
-#include "../include/dijkstra.h"
-#include "../include/config.h"
+#include "../include/main.h"
 
 using namespace std;
 
 int main(int argc, char *argv[])
 {
-    // if (argc < 2)
-    // {
-    //     cout << "Usage: xtrains.exe <command>" << endl;
-    //     cout << "Commands:" << endl;
-    //     cout << "  preprocess" << endl;
-    //     cout << "  dijkstra" << endl;
-    //     return 1;
-    // }
-
-    // string command = argv[1];
-    // vector<string> args;
-    // for (int i = 2; i < argc; i++)
-    // {
-    //     args.push_back(argv[i]);
-    // }
-
-    // if (command == "preprocess")
-    // {
-    //     return preprocess::main(argc - 2, argv + 2);
-    // }
-    // else if (command == "dijkstra")
-    // {
-    //     return dijkstra::main();
-    // }
-    // else
-    // {
-    //     cout << "Unknown command." << endl;
-    //     return 1;
-    // }
-
     bool dijkstra = readMode("dijkstra");
     bool preprocess = readMode("preprocess");
 

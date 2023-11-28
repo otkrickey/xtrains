@@ -160,6 +160,8 @@ namespace preprocess
             station::test();
             train::test();
         }
+
+        model::main();
         return 0;
     }
 
