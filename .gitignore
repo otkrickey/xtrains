@@ -410,3 +410,8 @@ compile_commands.json
 CTestTestfile.cmake
 _deps
 .cmake
+
+.env
+archive
+*.archive.*
+*.archive

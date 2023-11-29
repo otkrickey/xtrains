@@ -1,0 +1,279 @@
+<table class="tableblock frame-all grid-all stretch">
+    <caption class="title">表 3. データダンプAPIが対応するデータ種別</caption>
+    <thead>
+        <tr>
+            <th class="tableblock halign-left valign-top">種別</th>
+            <th class="tableblock halign-left valign-top">rdf:type</th>
+            <th class="tableblock halign-left valign-top">名称</th>
+            <th class="tableblock halign-left valign-top">詳細</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">共通</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">odpt:Calendar</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">曜日・日付区分</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">曜日・日付区分が記述される</p>
+            </td>
+        </tr>
+        <tr>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">共通</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">odpt:Operator</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">事業者</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">公共交通機関の事業者が記述される</p>
+            </td>
+        </tr>
+        <tr>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">鉄道</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">odpt:Station</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">駅情報</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">駅の名称や位置など、駅に関連する情報が記述される</p>
+            </td>
+        </tr>
+        <tr>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">鉄道</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">odpt:StationTimetable</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">駅時刻表</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">駅を発着する列車の時刻表情報が記述される</p>
+            </td>
+        </tr>
+        <tr>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">鉄道</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">odpt:TrainTimetable</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">列車時刻表</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">列車がどの駅にいつ到着するか、出発するかが記述される</p>
+            </td>
+        </tr>
+        <tr>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">鉄道</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">odpt:TrainType</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">列車種別</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">普通、快速など、列車の種別を定義する</p>
+            </td>
+        </tr>
+        <tr>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">鉄道</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">odpt:RailDirection</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">進行方向</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">上り、下りなど、列車の進行方向を定義する</p>
+            </td>
+        </tr>
+        <tr>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">鉄道</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">odpt:Railway</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">路線情報</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">鉄道における路線、運行系統が記述される</p>
+            </td>
+        </tr>
+        <tr>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">鉄道</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">odpt:RailwayFare</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">運賃情報</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">鉄道の運賃が記述される</p>
+            </td>
+        </tr>
+        <tr>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">鉄道</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">odpt:PassengerSurvey</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">駅別乗降人員</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">駅の乗降数集計結果が記述される</p>
+            </td>
+        </tr>
+        <tr>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">バス</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">odpt:BusTimetable</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">バス時刻表</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">バスがあるバス停、バス標柱にいつ到着するか、いつ出発するかが記述される e.g. 系統時刻表、スターフ、運行表</p>
+            </td>
+        </tr>
+        <tr>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">バス</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">odpt:BusroutePattern</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">バス運行路線情報</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">バス運行における運行路線情報が記述される</p>
+            </td>
+        </tr>
+        <tr>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">バス</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">odpt:BusroutePatternFare</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">バス運賃情報</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">バスの運賃が記述される</p>
+            </td>
+        </tr>
+        <tr>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">バス</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">odpt:BusstopPole</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">バス停標柱情報</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">バス停における標柱情報が記述される</p>
+            </td>
+        </tr>
+        <tr>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">バス</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">odpt:BusstopPoleTimetable</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">バス停標柱時刻表</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">バスがあるバス停標柱にいつ到着するか、出発するかが記述される e.g. バス停時刻表、標柱時刻表、標柱</p>
+            </td>
+        </tr>
+        <tr>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">航空機</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">odpt:Airport</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">空港情報</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">空港の名称や位置など、空港に関連する情報が記述される</p>
+            </td>
+        </tr>
+        <tr>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">航空機</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">odpt:AirportTerminal</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">空港ターミナル情報</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">空港のターミナルの名称など、空港のターミナルに関連する情報が記述される</p>
+            </td>
+        </tr>
+        <tr>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">航空機</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">odpt:FlightSchedule</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">フライト時刻表</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">航空機の予定される発着時刻情報が記述される e.g. 月間時刻表、週間スケジュール</p>
+            </td>
+        </tr>
+        <tr>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">航空機</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">odpt:FlightStatus</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">フライト状況</p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+                <p class="tableblock">空港を発着する航空機の状況を定義する</p>
+            </td>
+        </tr>
+    </tbody>
+</table>
