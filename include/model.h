@@ -92,6 +92,122 @@ namespace model
         }
     };
 
+    class Manager
+    {
+    protected:
+        std::vector<Station *> stations;
+        std::vector<Railway *> railways;
+        std::vector<Train *> trains;
+
+    public:
+        Manager(
+            std::map<railway_, Railway_> railway_map,
+            std::map<station_, Station_> station_map,
+            std::map<train_, Train_> train_map)
+        {
+            // initialize stations, railways, trains
+            for (auto &i : railway_map)
+            {
+                Railway *rw = new Railway;
+                rw->id = i.second.id;
+                railways.push_back(rw);
+            }
+            for (auto &i : station_map)
+            {
+                Station *st = new Station;
+                st->id = i.second.id;
+                stations.push_back(st);
+            }
+            for (auto &i : train_map)
+            {
+                Train *tr = new Train;
+                tr->id = i.second.id;
+                trains.push_back(tr);
+            }
+            // initialize references
+            for (auto &i : railway_map)
+            {
+                Railway *rw = railways[i.second.id];
+                for (auto &j : station_map)
+                {
+                    if (j.second.rw_code == i.second.rw_code)
+                    {
+                        Station *st = stations[j.second.id];
+                        rw->stations.push_back(st); // add station to railway
+                        st->railways.push_back(rw); // add railway to station
+                    }
+                }
+                for (auto &j : train_map)
+                {
+                    if (j.second.rw_code == i.second.rw_code)
+                    {
+                        Train *tr = trains[j.second.id];
+                        rw->trains.push_back(tr); // add train to railway
+                        tr->railway_id = rw->id;
+                    }
+                }
+            }
+            for (auto &i : station_map)
+            {
+                Station *st = stations[i.second.id];
+                for (auto &j : train_map)
+                {
+                    if (j.second.rw_code == i.second.rw_code)
+                    {
+                        Train *tr = trains[j.second.id];
+                        tr->stops.push_back(st); // add station to train
+                    }
+                }
+            }
+        };
+        ~Manager()
+        {
+            for (auto &i : stations)
+            {
+                delete i;
+            }
+            for (auto &i : railways)
+            {
+                delete i;
+            }
+            for (auto &i : trains)
+            {
+                delete i;
+            }
+        };
+        std::vector<Station *> getStations()
+        {
+            return stations;
+        };
+        std::vector<Railway *> getRailways()
+        {
+            return railways;
+        };
+        std::vector<Train *> getTrains()
+        {
+            return trains;
+        };
+
+        void display()
+        {
+            std::cout << "Stations:" << std::endl;
+            for (auto &i : stations)
+            {
+                std::cout << i->id << std::endl;
+            }
+            std::cout << "Railways:" << std::endl;
+            for (auto &i : railways)
+            {
+                std::cout << i->id << std::endl;
+            }
+            std::cout << "Trains:" << std::endl;
+            for (auto &i : trains)
+            {
+                std::cout << i->id << std::endl;
+            }
+        };
+    };
+
     extern std::map<railway_, Railway_> __test__Railway_s;
     extern std::map<station_, Station_> __test__Station_s;
     extern std::map<train_, Train_> __test__Train_s;
