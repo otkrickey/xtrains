@@ -161,7 +161,8 @@ namespace preprocess
             train::test();
         }
 
-        model::main();
+        // model::main();
+        database::main();
         return 0;
     }
 

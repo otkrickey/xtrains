@@ -20,6 +20,7 @@ add_executable(xtrains.exe
   src/config.cpp
   src/preprocess.cpp
   src/dijkstra.cpp
+  src/ndb.cpp
 )
 
 target_link_libraries(xtrains.exe CURL::libcurl)

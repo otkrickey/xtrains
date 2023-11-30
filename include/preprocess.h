@@ -9,6 +9,7 @@
 #include <nlohmann/json.hpp>
 
 #include "db.h"
+#include "ndb.h"
 #include "api.h"
 #include "config.h"
 #include "model.h"
