@@ -30,7 +30,8 @@ namespace model
     struct Station_
     {
         station_ id;         /**< The ID of the station. */
-        std::string char_id; /**< The character of the station. */
+        std::string rw_char; /**< The character of the railway. */
+        int rw_st_num;       /**< The character of the station. */
         std::string name;    /**< The name of the station. */
     };
 
@@ -38,7 +39,6 @@ namespace model
     {
         train_ id;        /**< The ID of the train. */
         std::string code; /**< The code of the train. */
-        // std::vector<Stop> stops; /**< The stops of the train. */
     };
 
     struct Railway
