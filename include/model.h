@@ -13,9 +13,8 @@ namespace model
     typedef int station_; /**< Station Number. Automatically generated. */
     typedef int train_;   /**< Train Number. Automatically generated. */
 
-    typedef railway_ railwayKey;                      /**< The type of a railway key. */
-    typedef std::pair<railway_, station_> stationKey; /**< The type of a station key. */
-    typedef std::pair<railway_, train_> trainKey;     /**< The type of a train key. */
+    typedef std::string railway_code_;   /**< Railway Code. */
+    typedef int railway_station_number_; /**< Railway Station Number. */
 
     struct Railway;
     struct Station;
@@ -23,23 +22,25 @@ namespace model
 
     struct Railway_
     {
-        railway_ id;         /**< The ID of the railway. */
-        std::string char_id; /**< The character of the railway. */
-        std::string name;    /**< The name of the railway. */
+        railway_ id;           /**< The ID of the railway. */
+        railway_code_ rw_code; /**< The character of the railway. */
+        std::string name;      /**< The name of the railway. */
     };
 
     struct Station_
     {
-        station_ id;         /**< The ID of the station. */
-        std::string rw_char; /**< The character of the railway. */
-        int rw_st_num;       /**< The character of the station. */
-        std::string name;    /**< The name of the station. */
+        station_ id;                       /**< The ID of the station. */
+        railway_code_ rw_code;             /**< The character of the railway. */
+        railway_station_number_ rw_st_num; /**< The number of the station in the railway. */
+        std::string name;                  /**< The name of the station. */
     };
 
     struct Train_
     {
-        train_ id;        /**< The ID of the train. */
-        std::string code; /**< The code of the train. */
+        train_ id;                                      /**< The ID of the train. */
+        std::string code;                               /**< The code of the train. */
+        railway_code_ rw_code;                          /**< The character of the railway. */
+        std::map<railway_station_number_, time_> stops; /**< The stops of the train. */
     };
 
     struct Railway
