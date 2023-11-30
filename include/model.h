@@ -37,10 +37,10 @@ namespace model
 
     struct Train_
     {
-        train_ id;                                      /**< The ID of the train. */
-        std::string code;                               /**< The code of the train. */
-        railway_code_ rw_code;                          /**< The character of the railway. */
-        std::map<railway_station_number_, time_> stops; /**< The stops of the train. */
+        train_ id;                       /**< The ID of the train. */
+        std::string code;                /**< The code of the train. */
+        railway_code_ rw_code;           /**< The character of the railway. */
+        std::map<station_, time_> stops; /**< The stops of the train. */
     };
 
     struct Railway
@@ -212,5 +212,5 @@ namespace model
     extern std::map<station_, Station_> __test__Station_s;
     extern std::map<train_, Train_> __test__Train_s;
 
-    // int main();
+    int main();
 } // namespace model
