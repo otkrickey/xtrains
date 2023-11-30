@@ -1,8 +1,9 @@
 #pragma once
+#include <map>
 #include <vector>
 #include <string>
-
-#include "db.h"
+#include <iostream>
+#include <algorithm>
 
 namespace model
 {
@@ -43,23 +44,23 @@ namespace model
 
     struct Railway
     {
-        railway_ id;                    /**< The ID of the railway. */
-        std::vector<Station> &stations; /**< The stations of the railway. */
-        std::vector<Train> &trains;     /**< The trains of the railway. */
+        railway_ id;                     /**< The ID of the railway. */
+        std::vector<Station *> stations; /**< The stations of the railway. */
+        std::vector<Train *> trains;     /**< The trains of the railway. */
     };
 
     struct Station
     {
-        station_ id;                    /**< The ID of the station. */
-        std::vector<Railway> &railways; /**< The railways of the station. */
+        station_ id;                     /**< The ID of the station. */
+        std::vector<Railway *> railways; /**< The railways of the station. */
         // std::vector<Train> getTrains(train_ train_id); /**< Get the trains of the station. */
     };
 
     struct Train
     {
-        train_ id;                   /**< The ID of the train. */
-        railway_ railway_id;         /**< The ID of the railway. */
-        std::vector<Station> &stops; /**< The stops of the train. */
+        train_ id;                    /**< The ID of the train. */
+        railway_ railway_id;          /**< The ID of the railway. */
+        std::vector<Station *> stops; /**< The stops of the train. */
     };
 
     struct Edge_
@@ -90,5 +91,9 @@ namespace model
         }
     };
 
-    int main();
+    extern std::map<railway_, Railway_> __test__Railway_s;
+    extern std::map<station_, Station_> __test__Station_s;
+    extern std::map<train_, Train_> __test__Train_s;
+
+    // int main();
 } // namespace model
