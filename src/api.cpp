@@ -108,4 +108,37 @@ namespace api
         }
         return railway_list;
     }
-} // namespace api
+
+    vector<string> getStationList(const string &railway)
+    {
+        vector<string> station_list;
+        URLBuilder builder(Endpoint::Station);
+        builder.addQuery(Query::Railway, railway);
+        string response = getRequest(builder);
+        json j = json::parse(response);
+        for (auto &station : j)
+        {
+            station_list.push_back(station["owl:sameAs"]);
+        }
+        return station_list;
+    }
+
+    vector<string> getTrainTimetableList (const string &railway)
+    {
+        vector<string> timetable_list;
+        URLBuilder builder(Endpoint::TrainTimetable);
+        builder.addQuery(Query::Railway, railway);
+        string response = getRequest(builder);
+        json j = json::parse(response);
+        for (auto &TrainTimetable : j)
+        {
+            timetable_list.push_back(TrainTimetable["owl:sameAs"]);
+        }
+        return timetable_list;   
+    }
+
+} // namstring
+
+
+
+

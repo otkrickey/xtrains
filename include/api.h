@@ -66,4 +66,6 @@ namespace api
     size_t WriteCallback(void *contents, size_t size, size_t nmemb, string *userp);
     string getRequest(URLBuilder &builder);
     vector<string> getRailwayList();
+    vector<string> getStationList(const string &railway);
+    vector<string> getTrainTimetableList(const string &railway);
 } // namespace api
