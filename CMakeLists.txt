@@ -13,14 +13,13 @@ find_package(CURL REQUIRED)
 include_directories(src)
 
 add_executable(xtrains.exe
-  src/main.cpp
   src/api.cpp
-  src/db.cpp
-  src/model.cpp
   src/config.cpp
-  src/preprocess.cpp
+  src/db.cpp
   src/dijkstra.cpp
-  src/ndb.cpp
+  src/main.cpp
+  src/model.cpp
+  src/preprocess.cpp
 )
 
 target_link_libraries(xtrains.exe CURL::libcurl)

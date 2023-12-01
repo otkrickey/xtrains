@@ -1,102 +1,92 @@
 #include "../include/db.h"
 
-namespace base
+namespace database
 {
-
-    template class base::DB<station::Object>;
-} // namespace base
-
-namespace railway
-{
-    int test()
+    // toBinary: convert value to binary and write to outputFileStream
+    template <>
+    void toBinary<std::string>(const std::string &value, std::ofstream &outputFileStream)
     {
-        std::cout << "railway::test()" << std::endl;
-        railway::DB db;
-        // for (const auto &[k, v] : db.show())
-        // {
-        //     std::cout << k.first << " " << k.second << " " << v.short_id << " " << v.long_id << std::endl;
-        // }
-
-        const auto &[k1, v1] = db.read("", {1, 0});
-        std::cout << "index: , key: {1, 0}" << std::endl;
-        std::cout << k1.first << " " << k1.second << " " << v1.short_id << " " << v1.long_id << std::endl
-                  << std::endl;
-
-        const auto &[k2, v2] = db.read("short", "Y");
-        std::cout << "index: short, key: Y" << std::endl;
-        std::cout << k2.first << " " << k2.second << " " << v2.short_id << " " << v2.long_id << std::endl
-                  << std::endl;
-
-        const auto &[k3, v3] = db.read("long", "odpt.Railway:TokyoMetro.Ginza");
-        std::cout << "index: long, key: odpt.Railway:TokyoMetro.Ginza" << std::endl;
-        std::cout << k3.first << " " << k3.second << " " << v3.short_id << " " << v3.long_id << std::endl
-                  << std::endl;
-
-        return 0;
+        size_t size = value.size();
+        outputFileStream.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
+        outputFileStream.write(value.c_str(), size);
     }
-} // namespace railway
-
-namespace station
-{
-    int test()
+    template <>
+    void toBinary<int>(const int &value, std::ofstream &outputFileStream)
     {
-        std::cout << "station::test()" << std::endl;
-        station::DB db;
-        // for (const auto &[k, v] : db.show())
-        // {
-        //     std::cout << k.first << " " << k.second << " " << v.short_id << " " << v.long_id << std::endl;
-        // }
-
-        const auto &[k1, v1] = db.read("", {1, 2});
-        std::cout << "index: , key: {1, 2}" << std::endl;
-        std::cout << k1.first << " " << k1.second << " " << v1.short_id << " " << v1.long_id << std::endl
-                  << std::endl;
-
-        const auto &[k2, v2] = db.read("short", "Y03");
-        std::cout << "index: short, key: Y03" << std::endl;
-        std::cout << k2.first << " " << k2.second << " " << v2.short_id << " " << v2.long_id << std::endl
-                  << std::endl;
-
-        const auto &[k3, v3] = db.read("long", "odpt.Station:TokyoMetro.Ginza.AoyamaItchome");
-        std::cout << "index: long, key: odpt.Station:TokyoMetro.Ginza.AoyamaItchome" << std::endl;
-        std::cout << k3.first << " " << k3.second << " " << v3.short_id << " " << v3.long_id << std::endl
-                  << std::endl;
-
-        return 0;
+        outputFileStream.write(reinterpret_cast<const char *>(&value), sizeof(value));
     }
-} // namespace station
-
-namespace train
-{
-    int test()
+    template <>
+    void toBinary<std::map<station_, time_>>(const std::map<station_, time_> &value, std::ofstream &outputFileStream)
     {
-        std::cout << "train::test()" << std::endl;
-        train::DB db;
-        // for (const auto &[k, v] : db.show())
-        // {
-        //     std::cout << k.first << " " << k.second << " " << v.short_id << " " << v.long_id << std::endl << std::endl;
-        // }
-
-        const auto &[k1, v1] = db.read("", {5, 1});
-        std::cout << "index: , key: {5, 1}" << std::endl;
-        std::cout << k1.first << " " << k1.second << " " << v1.id << std::endl;
-        for (const auto &stop : v1.stops)
+        size_t size = value.size();
+        outputFileStream.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
+        for (auto &i : value)
         {
-            std::cout << "    " << stop.railway << " " << stop.station << " " << stop.time << std::endl;
+            outputFileStream.write(reinterpret_cast<const char *>(&i.first), sizeof(station_));
+            outputFileStream.write(reinterpret_cast<const char *>(&i.second), sizeof(time_));
         }
-        std::cout << std::endl;
+    }
 
-        // const auto &[k2, v2] = db.read("name", "A1013S");
-        // std::cout << "index: name, key: A1013S" << std::endl;
-        // std::cout << k2.first << " " << k2.second << " " << v2.id << std::endl;
-        // for (const auto &stop : v2.stops)
-        // {
-        //     std::cout << "    " << stop.railway << " " << stop.station << " " << stop.time << std::endl;
-        // }
+    // fromBinary: read from inputFileStream and convert to value
+    template <>
+    std::string fromBinary<std::string>(std::ifstream &inputFileStream)
+    {
+        size_t size;
+        inputFileStream.read(reinterpret_cast<char *>(&size), sizeof(size_t));
+        std::string value(size, '\0');
+        inputFileStream.read(&value[0], size);
+        return value;
+    }
+    template <>
+    int fromBinary<int>(std::ifstream &inputFileStream)
+    {
+        int value;
+        inputFileStream.read(reinterpret_cast<char *>(&value), sizeof(value));
+        return value;
+    }
+    template <>
+    std::map<station_, time_> fromBinary<std::map<station_, time_>>(std::ifstream &inputFileStream)
+    {
+        size_t size;
+        inputFileStream.read(reinterpret_cast<char *>(&size), sizeof(size_t));
+        std::map<station_, time_> value;
+        for (size_t i = 0; i < size; i++)
+        {
+            station_ key;
+            time_ val;
+            inputFileStream.read(reinterpret_cast<char *>(&key), sizeof(station_));
+            inputFileStream.read(reinterpret_cast<char *>(&val), sizeof(time_));
+            value[key] = val;
+        }
+        return value;
+    }
 
-        // const auto &[k3, v3] = db.read("long", "odpt.Station:TokyoMetro.Tozai.Otemachi");
-        // std::cout << k3.first << " " << k3.second << " " << v3.short_id << " " << v3.long_id << std::endl << std::endl;
+    int main()
+    {
+        railwayDB RW_DB;
+        stationDB ST_DB;
+        trainDB TR_DB;
+
+        // // set & save
+        // RW_DB.set(model::__test__Railway_s);
+        // ST_DB.set(model::__test__Station_s);
+        // TR_DB.set(model::__test__Train_s);
+        // RW_DB.save();
+        // ST_DB.save();
+        // TR_DB.save();
+
+        // // load & display
+        // ST_DB.display();
+        // RW_DB.display();
+        // TR_DB.display();
+
+        auto _rws = RW_DB.get();
+        auto _sts = ST_DB.get();
+        auto _trs = TR_DB.get();
+
+        model::Manager m(_rws, _sts, _trs);
+        m.display();
 
         return 0;
     }
-} // namespace train
+} // namespace database

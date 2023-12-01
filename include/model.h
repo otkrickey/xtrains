@@ -1,9 +1,9 @@
 #pragma once
-#include <map>
-#include <vector>
-#include <string>
+
 #include <iostream>
-#include <algorithm>
+#include <map>
+#include <string>
+#include <vector>
 
 namespace model
 {
@@ -209,9 +209,11 @@ namespace model
         };
     };
 
+    // test data
     extern std::map<railway_, Railway_> __test__Railway_s;
     extern std::map<station_, Station_> __test__Station_s;
     extern std::map<train_, Train_> __test__Train_s;
 
     int main();
+    int test();
 } // namespace model

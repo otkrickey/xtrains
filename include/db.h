@@ -1,529 +1,382 @@
 #pragma once
+
 #include <fstream>
 #include <iostream>
 #include <map>
 #include <string>
 #include <utility>
-#include <vector>
-#include <unordered_map>
-#include <functional>
 #include <variant>
+#include <vector>
 
-namespace base
+#include "model.h"
+
+namespace database
 {
-    // DB [key, object, pair<key, object>, map<key, object>]
-    using Key = std::pair<int, int>;
-    struct Object
-    {
-    };
-    template <typename V>
-    using Pair = std::pair<Key, V>;
-    template <typename V>
-    using Data = std::map<Key, V>;
+    using namespace model;
+    int main();
 
-    // Index [key, entry, map<key, entry>]
-    using IndexKey = std::variant<Key, std::string, int>;
-    struct IndexEntry
-    {
-        std::streampos pos;
-        std::streamoff size;
-    };
-    using Index = std::map<IndexKey, IndexEntry>;
+    template <typename Value>
+    void toBinary(const Value &value, std::ofstream &outputFileStream);
+    template <typename Value>
+    Value fromBinary(std::ifstream &inputFileStream);
 
-    // Generate index key from DB key and value
-    template <typename V>
-    using ExtractKey = std::function<IndexKey(const Key &, const V &)>;
-
-    // DB class
-    template <typename V>
-    class DB
+    template <typename Value>
+    class baseDB
     {
     public:
-        using Key = std::pair<int, int>;
-        using Object = V;
-        using Data = std::map<Key, Object>;
-
         std::string collectionName;
+        std::string databaseName;
+        bool isLoaded = false;
 
     protected:
-        bool isLoaded = false;
-        Data data;
-
-        std::vector<std::string> indexNames;
-        std::map<std::string, ExtractKey<Object>> extractKeys;
-        std::map<std::string, Index> indexes;
-        std::map<std::string, std::ofstream> indexOutputFiles;
-        std::map<std::string, std::ifstream> indexInputFiles;
+        std::map<int, Value> data;
+        std::ofstream outputFileStream;
+        std::ifstream inputFileStream;
 
     public:
-        DB(const std::string collectionName, Data data = {})
-            : collectionName(collectionName), data(data)
+        baseDB(std::string databaseName, std::string collectionName)
+            : databaseName(databaseName), collectionName(collectionName)
         {
         }
-
-        virtual void toBinary(const Object &value, std::ofstream &dataFile) = 0;
-        virtual Object fromBinary(std::ifstream &dataFile) = 0;
-
-        void setIndex(const std::string &indexName, const ExtractKey<Object> &extractKey)
+        ~baseDB()
         {
-            indexNames.push_back(indexName);
-            extractKeys[indexName] = extractKey;
+            if (outputFileStream.is_open())
+            {
+                outputFileStream.close();
+            }
+            if (inputFileStream.is_open())
+            {
+                inputFileStream.close();
+            }
+        }
+
+        void set(std::map<int, Value> data)
+        {
+            this->data = data;
+        }
+
+        void add(int key, Value value)
+        {
+            data[key] = value;
         }
 
         void save()
         {
-            std::ofstream dataFile("data/" + collectionName + ".bin", std::ios::binary);
-            if (!dataFile.is_open())
+            // create directory if not exists
+            std::string command = "mkdir -p data/" + databaseName;
+            system(command.c_str());
+
+            // open file
+            outputFileStream.open("data/" + databaseName + "/" + collectionName + ".db", std::ios::binary);
+            if (!outputFileStream.is_open())
             {
-                std::cerr << "Failed to open file." << std::endl;
-                throw std::runtime_error("File open error");
+                std::cout << "Error: cannot open file " << collectionName << ".db" << std::endl;
+                throw std::runtime_error("Error: cannot open file " + databaseName + "/" + collectionName + ".db");
             }
 
-            for (std::string &indexName : indexNames)
+            for (const auto &item : data)
             {
-                std::string suffix = indexName.empty() ? ".idx" : "_" + indexName + ".idx";
-                indexOutputFiles[indexName].open("data/" + collectionName + suffix, std::ios::binary);
-                if (!indexOutputFiles[indexName].is_open())
-                {
-                    std::cerr << "Error opening file for writing" << std::endl;
-                    throw std::runtime_error("File open error");
-                }
-            }
-
-            for (const auto &[k, v] : data)
-            {
-                IndexEntry indexEntry;
-                indexEntry.pos = dataFile.tellp();
-
-                dataFile.write(reinterpret_cast<const char *>(&k.first), sizeof(k.first));
-                dataFile.write(reinterpret_cast<const char *>(&k.second), sizeof(k.second));
-
-                toBinary(v, dataFile);
-
-                indexEntry.size = dataFile.tellp() - indexEntry.pos;
-                for (auto &[indexName, extractKey] : extractKeys)
-                {
-                    indexes[indexName][extractKey(k, v)] = indexEntry;
-                }
-            }
-            for (auto &[indexName, index] : indexes)
-            {
-                for (const auto &[key, indexEntry] : index)
-                {
-                    if (std::holds_alternative<std::pair<int, int>>(key))
-                    {
-                        const auto &[first, second] = std::get<std::pair<int, int>>(key);
-                        indexOutputFiles[indexName].write(reinterpret_cast<const char *>(&first), sizeof(first));
-                        indexOutputFiles[indexName].write(reinterpret_cast<const char *>(&second), sizeof(second));
-                    }
-                    else if (std::holds_alternative<std::string>(key))
-                    {
-                        const auto &str = std::get<std::string>(key);
-                        indexOutputFiles[indexName].write(reinterpret_cast<const char *>(str.c_str()), str.size());
-                        indexOutputFiles[indexName].write("\0", 1);
-                    }
-                    else
-                    {
-                        throw std::runtime_error("Unsupported key type");
-                    }
-                    indexOutputFiles[indexName].write(reinterpret_cast<const char *>(&indexEntry.pos), sizeof(indexEntry.pos));
-                    indexOutputFiles[indexName].write(reinterpret_cast<const char *>(&indexEntry.size), sizeof(indexEntry.size));
-                }
-                indexOutputFiles[indexName].close();
+                toBinary(item.first, outputFileStream);
+                toBinary(item.second, outputFileStream);
             }
         }
 
         void load()
         {
-            if (isLoaded)
+            // open file
+            inputFileStream.open("data/" + databaseName + "/" + collectionName + ".db", std::ios::binary);
+            if (!inputFileStream.is_open())
             {
-                return;
+                std::cout << "Error: cannot open file " << collectionName << ".db" << std::endl;
+                throw std::runtime_error("Error: cannot open file " + databaseName + "/" + collectionName + ".db");
             }
 
-            std::ifstream dataFile("data/" + collectionName + ".bin", std::ios::binary);
-
-            if (!dataFile.is_open())
+            std::streampos position;
+            while (inputFileStream.peek() != EOF)
             {
-                std::cerr << "Failed to open file." << std::endl;
-                return;
-            }
-
-            while (dataFile.peek() != EOF)
-            {
-                Key key;
-                Object object;
-
-                dataFile.read(reinterpret_cast<char *>(&key.first), sizeof(key.first));
-                dataFile.read(reinterpret_cast<char *>(&key.second), sizeof(key.second));
-
-                object = fromBinary(dataFile);
-
-                data[key] = object;
+                int key = fromBinary<int>(inputFileStream);
+                Value value = fromBinary<Value>(inputFileStream);
+                data[key] = value;
             }
 
             isLoaded = true;
         }
 
-        void add(const Key &key, const Object &value)
+        std::map<int, Value> get()
         {
-            data[key] = value;
+            if (!isLoaded)
+            {
+                load();
+            }
+            return data;
+        }
+    };
+
+    class railwayDB
+    {
+    public:
+        std::string databaseName = "railway";
+        bool isLoaded = false;
+
+    protected:
+        baseDB<std::string> __char_id;
+        baseDB<std::string> __name;
+        std::map<railway_, Railway_> data;
+
+    public:
+        railwayDB() : __char_id(databaseName, "rw_code"), __name(databaseName, "name")
+        {
         }
 
-        Pair<Object> read(const std::string &indexName, const IndexKey &key)
+        void set(std::map<railway_, Railway_> data)
         {
-            std::string suffix = indexName.empty() ? ".idx" : "_" + indexName + ".idx";
-            std::ifstream indexFile("data/" + collectionName + suffix, std::ios::binary);
-
-            if (!indexFile.is_open())
+            this->data = data;
+            std::map<railway_, std::string> __char_id_map = {};
+            std::map<railway_, std::string> __name_map = {};
+            for (const auto &item : data)
             {
-                std::cerr << "Failed to open file." << std::endl;
-                throw std::runtime_error("File open error");
+                __char_id_map[item.first] = item.second.rw_code;
+                __name_map[item.first] = item.second.name;
             }
-
-            IndexKey tmpKey;
-            IndexEntry indexEntry;
-            bool found = false;
-
-            if (indexName == "" && std::holds_alternative<std::pair<int, int>>(key))
-            {
-                std::pair<int, int> tmpKey;
-                std::pair<int, int> _key = std::get<std::pair<int, int>>(key);
-                while (indexFile.peek() != EOF)
-                {
-                    indexFile.read(reinterpret_cast<char *>(&tmpKey.first), sizeof(tmpKey.first));
-                    indexFile.read(reinterpret_cast<char *>(&tmpKey.second), sizeof(tmpKey.second));
-                    indexFile.read(reinterpret_cast<char *>(&indexEntry.pos), sizeof(indexEntry.pos));
-                    indexFile.read(reinterpret_cast<char *>(&indexEntry.size), sizeof(indexEntry.size));
-                    if (tmpKey == _key)
-                    {
-                        found = true;
-                        break;
-                    }
-                }
-            }
-            else if (std::holds_alternative<std::string>(key))
-            {
-                std::string tmpKey;
-                std::string _key = std::get<std::string>(key);
-                char c;
-                while (indexFile.peek() != EOF)
-                {
-                    indexFile.get(c);
-                    if (c == '\0')
-                    {
-                        indexFile.read(reinterpret_cast<char *>(&indexEntry.pos), sizeof(indexEntry.pos));
-                        indexFile.read(reinterpret_cast<char *>(&indexEntry.size), sizeof(indexEntry.size));
-                        if (tmpKey == _key)
-                        {
-                            found = true;
-                            break;
-                        }
-                        tmpKey.clear();
-                    }
-                    else
-                    {
-                        tmpKey += c;
-                    }
-                }
-            }
-            else
-            {
-                throw std::runtime_error("Unsupported key type");
-            }
-
-            if (!found)
-            {
-                std::cerr << "Key not found in index" << std::endl;
-                return Pair<Object>();
-            }
-
-            std::ifstream dataFile("data/" + collectionName + ".bin", std::ios::binary);
-
-            if (!dataFile.is_open())
-            {
-                std::cerr << "Failed to open file." << std::endl;
-                throw std::runtime_error("File open error");
-            }
-
-            dataFile.seekg(indexEntry.pos);
-
-            // read key
-            Key _key;
-            dataFile.read(reinterpret_cast<char *>(&_key.first), sizeof(_key.first));
-            dataFile.read(reinterpret_cast<char *>(&_key.second), sizeof(_key.second));
-
-            // read object
-            Object object = fromBinary(dataFile);
-
-            return Pair<Object>(_key, object);
+            __char_id.set(__char_id_map);
+            __name.set(__name_map);
         }
 
-        Pair<Object> read(const std::string &indexName, const Key &key)
+        void add(Railway_ object)
         {
-            return read(indexName, IndexKey(key));
+            data[object.id] = object;
+            __char_id.add(object.id, object.rw_code);
+            __name.add(object.id, object.name);
         }
 
-        Data show()
+        void save()
         {
-            load();
+            __char_id.save();
+            __name.save();
+        }
+
+        void load()
+        {
+            for (const auto &item : __char_id.get())
+            {
+                data[item.first].rw_code = item.second;
+            }
+            for (const auto &item : __name.get())
+            {
+                data[item.first].name = item.second;
+            }
+        }
+
+        std::map<railway_, Railway_> get()
+        {
+            if (!isLoaded)
+            {
+                load();
+            }
             return data;
         }
 
-        // Pair<Object> get(const std::string &indexName, const IndexKey &key)
+        void display()
+        {
+            if (!isLoaded)
+            {
+                load();
+            }
+            for (const auto &item : data)
+            {
+                std::cout << item.first << " " << item.second.rw_code << " " << item.second.name << std::endl;
+            }
+        }
     };
 
-    int main();
-} // namespace base
-
-namespace railway
-{
-    // DB [key, object, pair<key, object>, map<key, object>]
-    using Key = base::Key;
-    struct Object
-    {
-        std::string short_id, long_id;
-    };
-    using Pair = base::Pair<Object>;
-    using Data = base::Data<Object>;
-
-    // Index [key, entry, map<key, entry>]
-    using IndexKey = base::IndexKey;
-    struct IndexEntry
-    {
-        std::streampos pos;
-        std::streamoff size;
-    };
-    using Index = std::map<IndexKey, IndexEntry>;
-
-    // Generate index key from DB key and value
-    using ExtractKey = base::ExtractKey<Object>;
-
-    // DB class
-    class DB : public base::DB<Object>
+    class stationDB
     {
     public:
-        DB(Data data = {})
-            : base::DB<Object>::DB("railways", data)
+        std::string databaseName = "station";
+        bool isLoaded = false;
+
+    protected:
+        baseDB<std::string> __rw_code;
+        baseDB<int> __rw_st_num;
+        baseDB<std::string> __name;
+        std::map<station_, Station_> data;
+
+    public:
+        stationDB() : __rw_code(databaseName, "rw_code"), __rw_st_num(databaseName, "rw_st_num"), __name(databaseName, "name")
         {
-            setIndex("", [](const Key &key, const Object &value) -> IndexKey
-                     { return key; });
-            setIndex("short", [](const Key &key, const Object &value) -> IndexKey
-                     { return value.short_id; });
-            setIndex("long", [](const Key &key, const Object &value) -> IndexKey
-                     { return value.long_id; });
         }
 
-        void toBinary(const Object &value, std::ofstream &dataFile)
+        void set(std::map<station_, Station_> data)
         {
-            size_t short_id_size = value.short_id.size();
-            dataFile.write(reinterpret_cast<const char *>(&short_id_size), sizeof(short_id_size));
-            dataFile.write(value.short_id.c_str(), short_id_size);
-
-            size_t long_id_size = value.long_id.size();
-            dataFile.write(reinterpret_cast<const char *>(&long_id_size), sizeof(long_id_size));
-            dataFile.write(value.long_id.c_str(), long_id_size);
+            this->data = data;
+            std::map<station_, std::string> __rw_char_map = {};
+            std::map<station_, int> __rw_st_num_map = {};
+            std::map<station_, std::string> __name_map = {};
+            for (const auto &item : data)
+            {
+                __rw_char_map[item.first] = item.second.rw_code;
+                __rw_st_num_map[item.first] = item.second.rw_st_num;
+                __name_map[item.first] = item.second.name;
+            }
+            __rw_code.set(__rw_char_map);
+            __rw_st_num.set(__rw_st_num_map);
+            __name.set(__name_map);
         }
 
-        Object fromBinary(std::ifstream &dataFile)
+        void add(Station_ object)
         {
-            size_t short_id_size;
-            dataFile.read(reinterpret_cast<char *>(&short_id_size), sizeof(short_id_size));
-            std::string short_id(short_id_size, '\0');
-            dataFile.read(&short_id[0], short_id_size);
+            data[object.id] = object;
+            __rw_code.add(object.id, object.rw_code);
+            __rw_st_num.add(object.id, object.rw_st_num);
+            __name.add(object.id, object.name);
+        }
 
-            size_t long_id_size;
-            dataFile.read(reinterpret_cast<char *>(&long_id_size), sizeof(long_id_size));
-            std::string long_id(long_id_size, '\0');
-            dataFile.read(&long_id[0], long_id_size);
+        void save()
+        {
+            __rw_code.save();
+            __rw_st_num.save();
+            __name.save();
+        }
 
-            return {short_id, long_id};
+        void load()
+        {
+            for (const auto &item : __rw_code.get())
+            {
+                data[item.first].rw_code = item.second;
+            }
+            for (const auto &item : __rw_st_num.get())
+            {
+                data[item.first].rw_st_num = item.second;
+            }
+            for (const auto &item : __name.get())
+            {
+                data[item.first].name = item.second;
+            }
+        }
+
+        std::map<station_, Station_> get()
+        {
+            if (!isLoaded)
+            {
+                load();
+            }
+            return data;
+        }
+
+        Station_ get(std::string field, std::string value)
+        {
+            if (!isLoaded)
+            {
+                load();
+            }
+            for (const auto &item : data)
+            {
+                if (field == "rw_code" && item.second.rw_code == value)
+                {
+                    return item.second;
+                }
+                else if (field == "name" && item.second.name == value)
+                {
+                    return item.second;
+                }
+            }
+            throw std::runtime_error("Error: cannot find station with " + field + " = " + value);
         }
 
         void display()
         {
-            load();
-            for (const auto &[k, v] : data)
+            for (const auto &item : data)
             {
-                std::cout << k.first << " " << k.second << " " << v.short_id << " " << v.long_id << std::endl;
+                std::cout << item.first << " " << item.second.rw_code << " " << item.second.rw_st_num << " " << item.second.name << std::endl;
             }
         }
     };
-    int test();
-}
 
-namespace station
-{
-    // DB [key, object, pair<key, object>, map<key, object>]
-    using Key = base::Key;
-    struct Object
-    {
-        std::string short_id, long_id;
-    };
-    using Pair = base::Pair<Object>;
-    using Data = base::Data<Object>;
-
-    // Index [key, entry, map<key, entry>]
-    using IndexKey = base::IndexKey;
-    struct IndexEntry
-    {
-        std::streampos pos;
-        std::streamoff size;
-    };
-    using Index = std::map<IndexKey, IndexEntry>;
-
-    // Generate index key from DB key and value
-    using ExtractKey = base::ExtractKey<Object>;
-
-    // DB class
-    class DB : public base::DB<Object>
+    class trainDB
     {
     public:
-        DB(Data data = {})
-            : base::DB<Object>::DB("stations", data)
+        std::string databaseName = "train";
+        bool isLoaded = false;
+
+    protected:
+        baseDB<std::string> __code;
+        baseDB<std::string> __rw_code;
+        baseDB<std::map<station_, time_>> __stops;
+        std::map<train_, Train_> data;
+
+    public:
+        trainDB() : __code(databaseName, "code"), __rw_code(databaseName, "rw_code"), __stops(databaseName, "stops")
         {
-            setIndex("", [](const Key &key, const Object &value) -> IndexKey
-                     { return key; });
-            setIndex("short", [](const Key &key, const Object &value) -> IndexKey
-                     { return value.short_id; });
-            setIndex("long", [](const Key &key, const Object &value) -> IndexKey
-                     { return value.long_id; });
         }
 
-        void toBinary(const Object &value, std::ofstream &dataFile)
+        void set(std::map<train_, Train_> data)
         {
-            size_t short_id_size = value.short_id.size();
-            dataFile.write(reinterpret_cast<const char *>(&short_id_size), sizeof(short_id_size));
-            dataFile.write(value.short_id.c_str(), short_id_size);
-
-            size_t long_id_size = value.long_id.size();
-            dataFile.write(reinterpret_cast<const char *>(&long_id_size), sizeof(long_id_size));
-            dataFile.write(value.long_id.c_str(), long_id_size);
+            this->data = data;
+            std::map<train_, std::string> __code_map = {};
+            std::map<train_, std::string> __rw_char_map = {};
+            std::map<train_, std::map<station_, time_>> __stops_map = {};
+            for (const auto &item : data)
+            {
+                __code_map[item.first] = item.second.code;
+                __rw_char_map[item.first] = item.second.rw_code;
+                __stops_map[item.first] = item.second.stops;
+            }
+            __code.set(__code_map);
+            __rw_code.set(__rw_char_map);
+            __stops.set(__stops_map);
         }
 
-        Object fromBinary(std::ifstream &dataFile)
+        void add(Train_ object)
         {
-            size_t short_id_size;
-            dataFile.read(reinterpret_cast<char *>(&short_id_size), sizeof(short_id_size));
-            std::string short_id(short_id_size, '\0');
-            dataFile.read(&short_id[0], short_id_size);
+            data[object.id] = object;
+            __code.add(object.id, object.code);
+            __rw_code.add(object.id, object.rw_code);
+            __stops.add(object.id, object.stops);
+        }
 
-            size_t long_id_size;
-            dataFile.read(reinterpret_cast<char *>(&long_id_size), sizeof(long_id_size));
-            std::string long_id(long_id_size, '\0');
-            dataFile.read(&long_id[0], long_id_size);
+        void save()
+        {
+            __code.save();
+            __rw_code.save();
+            __stops.save();
+        }
 
-            return {short_id, long_id};
+        void load()
+        {
+            for (const auto &item : __code.get())
+            {
+                data[item.first].code = item.second;
+            }
+            for (const auto &item : __rw_code.get())
+            {
+                data[item.first].rw_code = item.second;
+            }
+            for (const auto &item : __stops.get())
+            {
+                data[item.first].stops = item.second;
+            }
+        }
+
+        std::map<train_, Train_> get()
+        {
+            if (!isLoaded)
+            {
+                load();
+            }
+            return data;
         }
 
         void display()
         {
-            load();
-            for (const auto &[k, v] : data)
+            for (const auto &item : data)
             {
-                std::cout << k.first << " " << k.second << " " << v.short_id << " " << v.long_id << std::endl;
+                std::string stops = "";
+                for (const auto &stop : item.second.stops)
+                {
+                    stops += std::to_string(stop.first) + ":" + std::to_string(stop.second) + " ";
+                }
+                std::cout << item.first << " " << item.second.code << " " << item.second.rw_code << " " << stops << std::endl;
             }
         }
     };
-
-    int test();
-} // namespace station
-
-namespace train
-{
-    // DB [key, object, pair<key, object>, map<key, object>]
-    using Key = base::Key;
-    struct Stop
-    {
-        int railway;
-        int station;
-        int time;
-    };
-    struct Object
-    {
-        std::string id;
-        std::vector<Stop> stops;
-    };
-    using Pair = base::Pair<Object>;
-    using Data = base::Data<Object>;
-
-    // Index [key, entry, map<key, entry>]
-    using IndexKey = base::IndexKey;
-    struct IndexEntry
-    {
-        std::streampos pos;
-        std::streamoff size;
-    };
-    using Index = std::map<IndexKey, IndexEntry>;
-
-    // Generate index key from DB key and value
-    using ExtractKey = base::ExtractKey<Object>;
-
-    // DB class
-    class DB : public base::DB<Object>
-    {
-    public:
-        DB(Data data = {})
-            : base::DB<Object>::DB("trains", data)
-        {
-            setIndex("", [](const Key &key, const Object &value) -> IndexKey
-                     { return key; });
-            setIndex("name", [](const Key &key, const Object &value) -> IndexKey
-                     { return value.id; });
-            // setIndex("short", [](const Key &key, const Object &value) -> IndexKey
-            //          { return value.short_id; });
-            // setIndex("long", [](const Key &key, const Object &value) -> IndexKey
-            //          { return value.long_id; });
-        }
-
-        void toBinary(const Object &object, std::ofstream &dataFile)
-        {
-            size_t id_size = object.id.size();
-            dataFile.write(reinterpret_cast<const char *>(&id_size), sizeof(id_size));
-            dataFile.write(object.id.c_str(), id_size);
-
-            size_t stops_size = object.stops.size();
-            dataFile.write(reinterpret_cast<const char *>(&stops_size), sizeof(stops_size));
-
-            for (const auto &stop : object.stops)
-            {
-                dataFile.write(reinterpret_cast<const char *>(&stop.railway), sizeof(stop.railway));
-                dataFile.write(reinterpret_cast<const char *>(&stop.station), sizeof(stop.station));
-                dataFile.write(reinterpret_cast<const char *>(&stop.time), sizeof(stop.time));
-            }
-        }
-
-        Object fromBinary(std::ifstream &dataFile)
-        {
-            Object object;
-
-            size_t id_size;
-            dataFile.read(reinterpret_cast<char *>(&id_size), sizeof(id_size));
-            object.id.resize(id_size);
-            dataFile.read(&object.id[0], id_size);
-
-            size_t stops_size;
-            dataFile.read(reinterpret_cast<char *>(&stops_size), sizeof(stops_size));
-            object.stops.resize(stops_size);
-
-            for (auto &stop : object.stops)
-            {
-                dataFile.read(reinterpret_cast<char *>(&stop.railway), sizeof(stop.railway));
-                dataFile.read(reinterpret_cast<char *>(&stop.station), sizeof(stop.station));
-                dataFile.read(reinterpret_cast<char *>(&stop.time), sizeof(stop.time));
-            }
-
-            return object;
-        }
-
-        void display()
-        {
-            load();
-            for (const auto &[k, v] : data)
-            {
-                std::cout << k.first << " " << k.second << " " << v.id << " " << v.stops.size() << std::endl;
-            }
-        }
-    };
-
-    int test();
-};
+} // namespace database
