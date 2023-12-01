@@ -1,8 +1,6 @@
 #include "../include/main.h"
 
-using namespace std;
-
-int main(int argc, char *argv[])
+int main()
 {
     bool dijkstra = readMode("dijkstra");
     bool preprocess = readMode("preprocess");
@@ -13,11 +11,26 @@ int main(int argc, char *argv[])
     }
     else if (preprocess)
     {
-        return preprocess::main();
+        if (readOption("api"))
+        {
+            return preprocess::main();
+        }
+        else if (readOption("test"))
+        {
+            int result = 0;
+            result += model::test();
+            result += preprocess::test();
+            return result == 0 ? 0 : 1;
+        }
+        else
+        {
+            std::cout << "No option specified." << std::endl;
+            return 1;
+        }
     }
     else
     {
-        cout << "No mode specified." << endl;
+        std::cout << "No mode specified." << std::endl;
         return 1;
     }
 

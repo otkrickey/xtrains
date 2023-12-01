@@ -7,7 +7,7 @@
         "preprocess": true
     },
     "option": {
-        "api": true,
-        "test": false
+        "api": false,
+        "test": true
     }
 }
