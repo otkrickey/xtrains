@@ -17,10 +17,7 @@ int main()
         }
         else if (readOption("test"))
         {
-            int result = 0;
-            result += model::test();
-            result += preprocess::test();
-            return result == 0 ? 0 : 1;
+            return preprocess::test();
         }
         else
         {

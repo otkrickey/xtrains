@@ -1,5 +1,6 @@
 #pragma once
 
+#include <fstream>
 #include <iostream>
 #include <map>
 #include <string>
@@ -45,15 +46,15 @@ namespace model
 
     struct Railway
     {
-        railway_ id;                     /**< The ID of the railway. */
-        std::vector<Station *> stations; /**< The stations of the railway. */
-        std::vector<Train *> trains;     /**< The trains of the railway. */
+        railway_ id;                            /**< The ID of the railway. */
+        std::map<station_, Station *> stations; /**< The stations of the railway. */
+        std::map<train_, Train *> trains;       /**< The trains of the railway. */
     };
 
     struct Station
     {
-        station_ id;                     /**< The ID of the station. */
-        std::vector<Railway *> railways; /**< The railways of the station. */
+        station_ id;                            /**< The ID of the station. */
+        std::map<railway_, Railway *> railways; /**< The railways of the station. */
         // std::vector<Train> getTrains(train_ train_id); /**< Get the trains of the station. */
     };
 
@@ -95,9 +96,11 @@ namespace model
     class Manager
     {
     protected:
-        std::vector<Railway *> railways;
-        std::vector<Station *> stations;
-        std::vector<Train *> trains;
+        std::map<railway_, Railway *> railways;
+        std::map<station_, Station *> stations;
+        std::map<train_, Train *> trains;
+        std::map<std::pair<station_, station_>, std::vector<Edge_ *>> edge_s_map;
+        std::map<std::pair<station_, station_>, Edge *> edge_map;
 
     public:
         Manager(
@@ -105,24 +108,25 @@ namespace model
             std::map<station_, Station_> &station_map,
             std::map<train_, Train_> &train_map)
         {
+            // Basic 3 models: Railway, Station, Train
             // initialize railways, stations, trains
             for (auto &rw : railway_map)
             {
                 Railway *r = new Railway;
                 r->id = rw.first;
-                railways.push_back(r);
+                railways[rw.first] = r;
             }
             for (auto &st : station_map)
             {
                 Station *s = new Station;
                 s->id = st.first;
-                stations.push_back(s);
+                stations[st.first] = s;
             }
             for (auto &tr : train_map)
             {
                 Train *t = new Train;
                 t->id = tr.first;
-                trains.push_back(t);
+                trains[tr.first] = t;
             }
 
             // initialize references
@@ -134,8 +138,8 @@ namespace model
                     if (rw.second.rw_code == st.second.rw_code)
                     {
                         Station *s = stations[st.first];
-                        r->stations.push_back(s); // add station to railway
-                        s->railways.push_back(r); // add railway to station
+                        r->stations[st.first] = s; // add station to railway
+                        s->railways[rw.first] = r; // add railway to station
                     }
                 }
                 for (auto &tr : train_map)
@@ -143,7 +147,7 @@ namespace model
                     if (rw.second.rw_code == tr.second.rw_code)
                     {
                         Train *t = trains[tr.first];
-                        r->trains.push_back(t); // add train to railway
+                        r->trains[tr.first] = t; // add train to railway
                         t->railway_id = r->id;
                     }
                 }
@@ -163,47 +167,87 @@ namespace model
                     }
                 }
             }
+
+            // initialize edges
+            for (auto &tr : train_map)
+            {
+                Train *t = trains[tr.first];
+                for (int i = 0; i < t->stops.size() - 1; i++)
+                {
+                    std::pair<station_, station_> key = std::make_pair(t->stops[i]->id, t->stops[i + 1]->id);
+                    if (edge_map.find(key) == edge_map.end())
+                    {
+                        Edge *e = new Edge;
+                        e->from = t->stops[i]->id;
+                        e->to = t->stops[i + 1]->id;
+                        e->railway_id = t->railway_id;
+                        edge_map[key] = e;
+                    }
+                    Edge_ *e_ = new Edge_;
+                    e_->train_id = t->id;
+                    e_->from = t->stops[i]->id;
+                    e_->to = t->stops[i + 1]->id;
+                    e_->departure = tr.second.stops[t->stops[i]->id];
+                    e_->arrival = tr.second.stops[t->stops[i + 1]->id];
+                    edge_s_map[key].push_back(e_);
+                }
+            }
         };
         virtual ~Manager()
         {
             for (auto &rw : railways)
             {
-                delete rw;
+                delete rw.second;
             }
             for (auto &st : stations)
             {
-                delete st;
+                delete st.second;
             }
             for (auto &tr : trains)
             {
-                delete tr;
+                delete tr.second;
             }
         };
-        std::vector<Station *> getStations()
+        std::map<station_, Station *> getStations()
         {
             return stations;
         };
-        std::vector<Railway *> getRailways()
+        std::map<railway_, Railway *> getRailways()
         {
             return railways;
         };
-        std::vector<Train *> getTrains()
+        std::map<train_, Train *> getTrains()
         {
             return trains;
         };
 
-        void display()
+        void display(std::string prefix)
         {
+            std::ofstream rw_ofs("data/" + prefix + "_railway.txt");
             for (auto &rw : railways)
             {
-                std::cout << "Railway-" << rw->id << std::endl;
-                for (auto &st : rw->stations)
+                rw_ofs << "rw-" << rw.second->id << std::endl;
+                for (auto &st : rw.second->stations)
                 {
-                    std::cout << "  Station-" << st->id << std::endl;
+                    rw_ofs << "  st-" << st.second->id << std::endl;
                 }
-                for (auto &tr : rw->trains)
+                for (auto &tr : rw.second->trains)
                 {
-                    std::cout << "  Train-" << tr->id << std::endl;
+                    rw_ofs << "  tr-" << tr.second->id << std::endl;
+                }
+            }
+
+            std::ofstream edge_ofs("data/" + prefix + "_edge.txt");
+            for (auto &e : edge_s_map)
+            {
+                edge_ofs << "Edge: " << e.first.first << " " << e.first.second << std::endl;
+                edge_ofs << "  Railway: " << edge_map[e.first]->railway_id << std::endl;
+                for (auto &e_ : e.second)
+                {
+                    edge_ofs << "  "
+                             << "tr-" << e_->train_id << " "
+                             << "d-" << e_->departure << " "
+                             << "a-" << e_->arrival << std::endl;
                 }
             }
         };
@@ -213,7 +257,4 @@ namespace model
     extern std::map<railway_, Railway_> __test__Railway_s;
     extern std::map<station_, Station_> __test__Station_s;
     extern std::map<train_, Train_> __test__Train_s;
-
-    int main();
-    int test();
 } // namespace model

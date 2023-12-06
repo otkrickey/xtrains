@@ -60,33 +60,4 @@ namespace database
         }
         return value;
     }
-
-    int main()
-    {
-        railwayDB RW_DB;
-        stationDB ST_DB;
-        trainDB TR_DB;
-
-        // // set & save
-        // RW_DB.set(model::__test__Railway_s);
-        // ST_DB.set(model::__test__Station_s);
-        // TR_DB.set(model::__test__Train_s);
-        // RW_DB.save();
-        // ST_DB.save();
-        // TR_DB.save();
-
-        // // load & display
-        // ST_DB.display();
-        // RW_DB.display();
-        // TR_DB.display();
-
-        auto _rws = RW_DB.get();
-        auto _sts = ST_DB.get();
-        auto _trs = TR_DB.get();
-
-        model::Manager m(_rws, _sts, _trs);
-        m.display();
-
-        return 0;
-    }
 } // namespace database
