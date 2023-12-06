@@ -8,6 +8,8 @@
     },
     "option": {
         "api": false,
-        "test": true
+        "test": true,
+        "load_test_model": true,
+        "load_api_model": false
     }
 }

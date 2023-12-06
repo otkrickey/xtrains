@@ -136,17 +136,26 @@ namespace preprocess
     }
     int test()
     {
-        // load from DB
-        database::railwayDB RW_DB;
-        database::stationDB ST_DB;
-        database::trainDB TR_DB;
+        if (readOption("load_test_model"))
+        {
+            model::Manager m(model::__test__Railway_s, model::__test__Station_s, model::__test__Train_s);
+            m.display("test");
+            return 0;
+        }
 
-        auto _rws = RW_DB.get();
-        auto _sts = ST_DB.get();
-        auto _trs = TR_DB.get();
+        if (readOption("load_api_model"))
+        {
+            database::railwayDB RW_DB;
+            database::stationDB ST_DB;
+            database::trainDB TR_DB;
 
-        // generate cross-reference models
-        model::Manager m(_rws, _sts, _trs);
+            auto _rws = RW_DB.get();
+            auto _sts = ST_DB.get();
+            auto _trs = TR_DB.get();
+
+            model::Manager m(_rws, _sts, _trs);
+            m.display("db");
+        }
         return 0;
     }
 } // namespace preprocess

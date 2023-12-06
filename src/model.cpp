@@ -62,15 +62,4 @@ namespace model
         {28, {28, "C009", "C", {{10, 50400}, {11, 50700}, {12, 51000}, {13, 51300}, {14, 51600}}}},
         {29, {29, "C010", "C", {{10, 54000}, {11, 54300}, {12, 54600}, {13, 54900}, {14, 55200}}}},
     };
-
-    int main()
-    {
-        return 0;
-    }
-    int test()
-    {
-        Manager m(__test__Railway_s, __test__Station_s, __test__Train_s);
-        m.display();
-        return 0;
-    }
 } // namespace model

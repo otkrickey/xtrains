@@ -13,7 +13,6 @@
 namespace database
 {
     using namespace model;
-    int main();
 
     template <typename Value>
     void toBinary(const Value &value, std::ofstream &outputFileStream);

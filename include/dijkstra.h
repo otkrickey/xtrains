@@ -7,6 +7,5 @@
 
 namespace dijkstra
 {
-
     int main();
 }
