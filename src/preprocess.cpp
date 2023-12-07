@@ -25,9 +25,9 @@ namespace preprocess
     int main()
     {
         // save to DB
-        database::railwayDB RW_DB;
-        database::stationDB ST_DB;
-        database::trainDB TR_DB;
+        database::railwayDB *RW_DB = database::railwayDB::getInstance();
+        database::stationDB *ST_DB = database::stationDB::getInstance();
+        database::trainDB *TR_DB = database::trainDB::getInstance();
 
         // get railway data as json
         api::URLBuilder builder(api::Endpoint::Railway);
@@ -43,15 +43,15 @@ namespace preprocess
             {
                 model::railway_code_ rw_code = RW["odpt:lineCode"].get<std::string>();
                 std::string name = RW["owl:sameAs"].get<std::string>();
-                RW_DB.add({railway_id, rw_code, name});
+                RW_DB->add({railway_id, rw_code, name});
             }
             railway_id++;
         }
-        RW_DB.save();
+        RW_DB->save();
 
         // get stations data as json
         model::station_ station_id = 0;
-        for (const auto &[k, v] : RW_DB.get())
+        for (const auto &[k, v] : RW_DB->get())
         {
             // get station data as json
             api::URLBuilder builder(api::Endpoint::Station);
@@ -68,19 +68,19 @@ namespace preprocess
                     model::railway_code_ rw_code = std::regex_replace(st_code, std::regex("\\d+"), "");
                     model::railway_station_number_ rw_st_num = std::stoi(std::regex_replace(st_code, std::regex("\\D+"), ""));
                     std::string name = ST["owl:sameAs"].get<std::string>();
-                    ST_DB.add({station_id, rw_code, rw_st_num, name});
+                    ST_DB->add({station_id, rw_code, rw_st_num, name});
                 }
                 station_id++;
             }
         }
-        ST_DB.save();
+        ST_DB->save();
 
         // get trains data as json
         std::vector<api::Calendar> calendars = {
             api::Calendar::Weekday,
         };
         model::train_ train_id = 0;
-        for (const auto &[k, v] : RW_DB.get())
+        for (const auto &[k, v] : RW_DB->get())
         {
             for (const auto &calendar : calendars)
             {
@@ -106,7 +106,7 @@ namespace preprocess
                                 std::string st_name = station["odpt:departureStation"].get<std::string>();
                                 std::string time_str = station["odpt:departureTime"].get<std::string>();
                                 model::time_ time = timeToSeconds(time_str);
-                                model::station_ st_id = ST_DB.get("name", st_name).id;
+                                model::station_ st_id = ST_DB->get("name", st_name).id;
                                 stops[st_id] = time;
                             }
                             else if (station.contains("odpt:arrivalStation") && station.contains("odpt:arrivalTime"))
@@ -114,18 +114,18 @@ namespace preprocess
                                 std::string st_name = station["odpt:arrivalStation"].get<std::string>();
                                 std::string time_str = station["odpt:arrivalTime"].get<std::string>();
                                 model::time_ time = timeToSeconds(time_str);
-                                model::station_ st_id = ST_DB.get("name", st_name).id;
+                                model::station_ st_id = ST_DB->get("name", st_name).id;
                                 stops[st_id] = time;
                             }
                         }
-                        TR_DB.add({train_id, code, v.rw_code, stops});
+                        TR_DB->add({train_id, code, v.rw_code, stops});
                     }
                     train_id++;
                 }
                 j.clear();
             }
         }
-        TR_DB.save();
+        TR_DB->save();
 
         // display count
         std::cout << "Railways: " << railway_id << std::endl;
@@ -145,13 +145,13 @@ namespace preprocess
 
         if (readOption("load_api_model"))
         {
-            database::railwayDB RW_DB;
-            database::stationDB ST_DB;
-            database::trainDB TR_DB;
+            database::railwayDB *RW_DB = database::railwayDB::getInstance();
+            database::stationDB *ST_DB = database::stationDB::getInstance();
+            database::trainDB *TR_DB = database::trainDB::getInstance();
 
-            auto _rws = RW_DB.get();
-            auto _sts = ST_DB.get();
-            auto _trs = TR_DB.get();
+            auto _rws = RW_DB->get();
+            auto _sts = ST_DB->get();
+            auto _trs = TR_DB->get();
 
             model::Manager m(_rws, _sts, _trs);
             m.display("db");
