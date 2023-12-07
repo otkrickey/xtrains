@@ -2,7 +2,7 @@
 
 namespace model
 {
-    time_ Edge::weight(time_ prev_arrival)
+    time_ Edge::weight(time_ prev_arrival) const
     {
         // search for some available train by time
         return 0;

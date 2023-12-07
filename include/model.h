@@ -63,6 +63,7 @@ namespace model
         train_ id;                    /**< The ID of the train. */
         railway_ railway_id;          /**< The ID of the railway. */
         std::vector<Station *> stops; /**< The stops of the train. */
+        Train_ *train_ptr;
     };
 
     struct Edge_
@@ -79,7 +80,7 @@ namespace model
         station_ from;                    /**< The starting station of the edge. */
         station_ to;                      /**< The ending station of the edge. */
         railway_ railway_id;              /**< The ID of the railway. */
-        time_ weight(time_ prev_arrival); /**< The weight of the edge. */
+        time_ weight(time_ prev_arrival) const; /**< The weight of the edge. */
     };
 
     struct Node
@@ -207,6 +208,17 @@ namespace model
             {
                 delete tr.second;
             }
+            for (auto &e : edge_map)
+            {
+                delete e.second;
+            }
+            for (auto &e : edge_s_map)
+            {
+                for (auto &e_ : e.second)
+                {
+                    delete e_;
+                }
+            }
         };
         std::map<station_, Station *> getStations()
         {
@@ -219,6 +231,14 @@ namespace model
         std::map<train_, Train *> getTrains()
         {
             return trains;
+        };
+        std::map<std::pair<station_, station_>, Edge *> getEdges()
+        {
+            return edge_map;
+        };
+        std::map<std::pair<station_, station_>, std::vector<Edge_ *>> getEdge_s()
+        {
+            return edge_s_map;
         };
 
         void display(std::string prefix)

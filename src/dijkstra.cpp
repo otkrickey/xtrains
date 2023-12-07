@@ -1,17 +1,17 @@
-#include "../include/dijkstra.h"
+// #include "../include/dijkstra.h"
 
-namespace dijkstra
-{
-    // int dijkstra(
-    //     const std::vector<std::vector<model::Edge>> &graph,
-    //     model::time_ start,
-    //     model::station_)
-    // {
-    // }
+// namespace dijkstra
+// {
+// int main()
+// {
+//     extern model::station_ startStationId;
+//     extern model::station_ endStationId;
+//     std::cin >>  startStationId;
+//     std::cin >> endStationId;
+//     // 開始駅のIDと終了駅のIDを指定して最短経路と乗車情報を表示
+//     printShortestPathInfo(startStationId , endStationId );
 
-    int main()
-    {
-        std::cout << "NOT Implemented." << std::endl;
-        return 0;
-    }
-}
+//     return 0;
+// }
+
+// }
