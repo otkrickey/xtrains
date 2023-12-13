@@ -2,15 +2,14 @@
 
 namespace api
 {
-    using namespace std;
     using json = nlohmann::json;
 
-    const string base_url = "https://api.odpt.org/api/v4/";
+    const std::string base_url = "https://api.odpt.org/api/v4/";
 
     // const string consumer_key = [consumer_key = getenv("ODPT_CONSUMER_KEY")]() -> string
-    const string consumer_key = readApiKey();
+    const std::string consumer_key = readApiKey();
 
-    map<Endpoint, string> endpoint_map = {
+    std::map<Endpoint, std::string> endpoint_map = {
         {Endpoint::Calendar, "odpt:Calendar"},
         {Endpoint::Operator, "odpt:Operator"},
         {Endpoint::Station, "odpt:Station"},
@@ -21,16 +20,16 @@ namespace api
         {Endpoint::Railway, "odpt:Railway"},
         {Endpoint::RailwayFare, "odpt:RailwayFare"},
     };
-    map<Query, string> query_map = {
+    std::map<Query, std::string> query_map = {
         {Query::Calendar, "odpt:calendar"},
         {Query::Operator, "odpt:operator"},
         {Query::Railway, "odpt:railway"},
     };
-    map<Operator, string> operator_map = {
+    std::map<Operator, std::string> operator_map = {
         {Operator::JREast, "odpt.Operator:JR-East"},
         {Operator::TokyoMetro, "odpt.Operator:TokyoMetro"},
     };
-    map<Calendar, string> calendar_map = {
+    std::map<Calendar, std::string> calendar_map = {
         {Calendar::Weekday, "odpt.Calendar:Weekday"},
         {Calendar::SaturdayHoliday, "odpt.Calendar:SaturdayHoliday"},
     };
@@ -40,12 +39,12 @@ namespace api
         url = base_url + endpoint_map[endpoint] + "?acl:consumerKey=" + consumer_key;
     }
 
-    void URLBuilder::addQuery(const Query &key, const string &val)
+    void URLBuilder::addQuery(const Query &key, const std::string &val)
     {
         query[key] = val;
     }
 
-    string URLBuilder::build()
+    std::string URLBuilder::build()
     {
         for (auto const &[key, val] : query)
         {
@@ -54,20 +53,26 @@ namespace api
         return url;
     }
 
-    size_t WriteCallback(void *contents, size_t size, size_t nmemb, string *userp)
+    json URLBuilder::getJson()
+    {
+        std::string response = getRequest(*this);
+        return json::parse(response);
+    }
+
+    size_t WriteCallback(void *contents, size_t size, size_t nmemb, std::string *userp)
     {
         size_t totalSize = size * nmemb;
         userp->append((char *)contents, totalSize);
         return totalSize;
     }
 
-    string getRequest(URLBuilder &builder)
+    std::string getRequest(URLBuilder &builder)
     {
         CURL *curl;
         CURLcode res;
-        string readBuffer;
+        std::string readBuffer;
 
-        string url = builder.build();
+        std::string url = builder.build();
         printf("%s\n", url.c_str());
 
         curl = curl_easy_init();
@@ -95,12 +100,12 @@ namespace api
         return readBuffer;
     }
 
-    vector<string> getRailwayList()
+    std::vector<std::string> getRailwayList()
     {
-        vector<string> railway_list;
+        std::vector<std::string> railway_list;
         URLBuilder builder(Endpoint::Railway);
         builder.addQuery(Query::Operator, operator_map[Operator::TokyoMetro]);
-        string response = getRequest(builder);
+        std::string response = getRequest(builder);
         json j = json::parse(response);
         for (auto &railway : j)
         {
@@ -108,4 +113,54 @@ namespace api
         }
         return railway_list;
     }
-} // namespace api
+
+    std::vector<std::string> getStationList(const std::string &railway)
+    {
+        std::vector<std::string> station_list;
+        URLBuilder builder(Endpoint::Station);
+        builder.addQuery(Query::Railway, railway);
+        std::string response = getRequest(builder);
+        json j = json::parse(response);
+        for (auto &station : j)
+        {
+            station_list.push_back(station["owl:sameAs"]);
+        }
+        return station_list;
+    }
+
+    std::vector<std::string> getTrainTimetableList (const std::string &railway)
+    {
+        std::vector<std::string> timetable_list;
+        URLBuilder builder(Endpoint::TrainTimetable);
+        builder.addQuery(Query::Railway, railway);
+        std::string response = getRequest(builder);
+        json j = json::parse(response);
+        for (auto &TrainTimetable : j)
+        {
+            timetable_list.push_back(TrainTimetable["owl:sameAs"]);
+        }
+        return timetable_list;   
+    }
+
+    int main()
+    {
+        // test getStationList
+        std::vector<std::string> railway_list = getRailwayList();
+        for (auto &railway : railway_list)
+        {
+            std::cout << railway << std::endl;
+            std::vector<std::string> station_list = getStationList(railway);
+            for (auto &station : station_list)
+            {
+                std::cout << station << std::endl;
+            }
+        }
+        //std::cout << "Hello, world!" << std::endl;
+        return 0;
+    }
+
+} // namstd::string
+
+
+
+
