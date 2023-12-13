@@ -45,7 +45,25 @@ int main(int argc, char *argv[])
     }
     else if (preprocess)
     {
-        return preprocess::main();
+        if (readOption("api"))
+        {
+            int result = 0;
+            result += api::main();
+            result += preprocess::main();
+            return result == 0 ? 0 : 1;
+        }
+        else if (readOption("test"))
+        {
+            int result = 0;
+            // result += model::test();
+            // result += preprocess::test();
+            return result == 0 ? 0 : 1;
+        }
+        else
+        {
+            std::cout << "No option specified." << std::endl;
+            return 1;
+        }
     }
     else
     {
