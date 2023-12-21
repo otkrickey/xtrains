@@ -13,11 +13,11 @@ int main()
     {
         if (readOption("api"))
         {
-            return preprocess::main();
+            return preprocess_v2::main();
         }
         else if (readOption("test"))
         {
-            return preprocess::test();
+            return preprocess_v2::test();
         }
         else
         {
