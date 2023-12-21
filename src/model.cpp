@@ -2,10 +2,34 @@
 
 namespace model
 {
-    time_ Edge::weight(time_ prev_arrival)
+    DataManager *DataManager::instance = nullptr;
+
+    Edge_ *Edge::weight(Edge_ *prev)
     {
-        // search for some available train by time
-        return 0;
+        DataManager &dm = DataManager::getInstance();
+        std::pair<station_, station_> key = {from, to};
+        // find the minimum of (departure - prev_arrival)
+        time_ prev_arrival = prev->arrival;
+        time_ min = INT_MAX;
+        Edge_ *min_edge = nullptr;
+        time_ transfer_time = 4 * 60;
+        prev_arrival += transfer_time;
+        for (auto &edge_ : dm.edge_s_map[key])
+        {
+            if (edge_->train_id == prev->train_id)
+            {
+                return edge_;
+            }
+            else if (edge_->departure > prev_arrival)
+            {
+                if (edge_->departure - prev_arrival < min)
+                {
+                    min = edge_->departure - prev_arrival;
+                    min_edge = edge_;
+                }
+            }
+        }
+        return min_edge;
     }
 
     std::map<railway_, Railway_> __test__Railway_s = {

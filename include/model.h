@@ -1,8 +1,11 @@
 #pragma once
 
+#include <climits>
 #include <fstream>
 #include <iostream>
 #include <map>
+#include <regex>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -76,10 +79,10 @@ namespace model
 
     struct Edge
     {
-        station_ from;                    /**< The starting station of the edge. */
-        station_ to;                      /**< The ending station of the edge. */
-        railway_ railway_id;              /**< The ID of the railway. */
-        time_ weight(time_ prev_arrival); /**< The weight of the edge. */
+        station_ from;              /**< The starting station of the edge. */
+        station_ to;                /**< The ending station of the edge. */
+        railway_ railway_id;        /**< The ID of the railway. */
+        Edge_ *weight(Edge_ *prev); /**< The weight of the edge. */
     };
 
     struct Node
@@ -93,23 +96,94 @@ namespace model
         }
     };
 
-    class Manager
+    // test data
+    extern std::map<railway_, Railway_> __test__Railway_s;
+    extern std::map<station_, Station_> __test__Station_s;
+    extern std::map<train_, Train_> __test__Train_s;
+
+    // Data Manager - generate some data from 3 essential data
+    class DataManager
     {
-    protected:
+
+    public:
+        std::map<railway_, Railway_> railway_map;
+        std::map<station_, Station_> station_map;
+        std::map<train_, Train_> train_map;
+
         std::map<railway_, Railway *> railways;
         std::map<station_, Station *> stations;
         std::map<train_, Train *> trains;
         std::map<std::pair<station_, station_>, std::vector<Edge_ *>> edge_s_map;
         std::map<std::pair<station_, station_>, Edge *> edge_map;
 
+    private:
+        DataManager(
+            std::map<railway_, Railway_> &railway_map,
+            std::map<station_, Station_> &station_map,
+            std::map<train_, Train_> &train_map)
+            : railway_map(railway_map),
+              station_map(station_map),
+              train_map(train_map)
+        {
+            initialize_basic_data();
+            initialize_walk_edges();
+            initialize_edges();
+        }
+        DataManager(const DataManager &) = delete;
+        DataManager &operator=(const DataManager &) = delete;
+        static DataManager *instance;
+
+    protected:
+        virtual ~DataManager()
+        {
+            for (auto &rw : railways)
+            {
+                delete rw.second;
+            }
+            for (auto &st : stations)
+            {
+                delete st.second;
+            }
+            for (auto &tr : trains)
+            {
+                delete tr.second;
+            }
+            for (auto &e : edge_map)
+            {
+                delete e.second;
+            }
+            for (auto &e : edge_s_map)
+            {
+                for (auto &e_ : e.second)
+                {
+                    delete e_;
+                }
+            }
+        };
+
     public:
-        Manager(
+        static DataManager &getInstance(
             std::map<railway_, Railway_> &railway_map,
             std::map<station_, Station_> &station_map,
             std::map<train_, Train_> &train_map)
         {
-            // Basic 3 models: Railway, Station, Train
-            // initialize railways, stations, trains
+            if (instance == nullptr)
+            {
+                instance = new DataManager(railway_map, station_map, train_map);
+            }
+            return *instance;
+        }
+        static DataManager &getInstance()
+        {
+            if (instance == nullptr)
+            {
+                throw std::runtime_error("DataManager has not been initialized.");
+            }
+            return *instance;
+        }
+        void initialize_basic_data()
+        {
+            // create Box of Railway, Station, Train
             for (auto &rw : railway_map)
             {
                 Railway *r = new Railway;
@@ -128,7 +202,6 @@ namespace model
                 t->id = tr.first;
                 trains[tr.first] = t;
             }
-
             // initialize references
             for (auto &rw : railway_map)
             {
@@ -167,8 +240,9 @@ namespace model
                     }
                 }
             }
-
-            // initialize edges
+        }
+        void initialize_edges()
+        {
             for (auto &tr : train_map)
             {
                 Train *t = trains[tr.first];
@@ -192,35 +266,48 @@ namespace model
                     edge_s_map[key].push_back(e_);
                 }
             }
-        };
-        virtual ~Manager()
+        }
+        void initialize_walk_edges()
         {
-            for (auto &rw : railways)
+            // extract last part of Station_.name by using regex
+            // ex: `odpt.Station:Xtrains.alpha.center` -> `center`
+            std::map<station_, std::string> station_name_map;
+            for (auto &st : station_map)
             {
-                delete rw.second;
+                std::regex re(".*\\.(.*)");
+                std::smatch match;
+                std::regex_match(st.second.name, match, re);
+                station_name_map[st.first] = match[1];
             }
-            for (auto &st : stations)
+            // find same station name & add to edges
+            // note: use 2d for loop to find all edges
+            for (auto &st1 : station_name_map)
             {
-                delete st.second;
+                for (auto &st2 : station_name_map)
+                {
+                    if (st1.second == st2.second && st1.first != st2.first)
+                    {
+                        std::pair<station_, station_> key = std::make_pair(st1.first, st2.first);
+                        if (edge_map.find(key) == edge_map.end())
+                        {
+                            Edge *e = new Edge;
+                            e->from = st1.first;
+                            e->to = st2.first;
+                            e->railway_id = -1;
+                            edge_map[key] = e;
+                        }
+                        Edge_ *e_ = new Edge_;
+                        e_->train_id = -1;
+                        e_->from = st1.first;
+                        e_->to = st2.first;
+                        e_->departure = -1;
+                        e_->arrival = -1;
+                        edge_s_map[key].push_back(e_);
+                    }
+                }
             }
-            for (auto &tr : trains)
-            {
-                delete tr.second;
-            }
-        };
-        std::map<station_, Station *> getStations()
-        {
-            return stations;
-        };
-        std::map<railway_, Railway *> getRailways()
-        {
-            return railways;
-        };
-        std::map<train_, Train *> getTrains()
-        {
-            return trains;
-        };
-
+        }
+        // for debug
         void display(std::string prefix)
         {
             std::ofstream rw_ofs("data/" + prefix + "_railway.txt");
@@ -250,11 +337,17 @@ namespace model
                              << "a-" << e_->arrival << std::endl;
                 }
             }
+
+            std::cout << "RailwayMapCount: " << railway_map.size() << std::endl;
+            std::cout << "StationMapCount: " << station_map.size() << std::endl;
+            std::cout << "TrainMapCount: " << train_map.size() << std::endl;
+            std::cout << std::endl;
+            std::cout << "RailwayCount: " << railways.size() << std::endl;
+            std::cout << "StationCount: " << stations.size() << std::endl;
+            std::cout << "TrainCount: " << trains.size() << std::endl;
+            std::cout << std::endl;
+            std::cout << "Edges_Count: " << edge_map.size() << std::endl;
+            std::cout << "Edge_s_Count: " << edge_s_map.size() << std::endl;
         };
     };
-
-    // test data
-    extern std::map<railway_, Railway_> __test__Railway_s;
-    extern std::map<station_, Station_> __test__Station_s;
-    extern std::map<train_, Train_> __test__Train_s;
 } // namespace model

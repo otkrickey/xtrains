@@ -180,6 +180,9 @@ namespace preprocess_v2
             throw std::invalid_argument("Invalid time");
         }
 
+        if (0 <= hours && hours < 3)
+            hours += 24;
+
         return hours * 3600 + minutes * 60;
     }
 
@@ -304,17 +307,30 @@ namespace preprocess_v2
         }
         TrainDB->save();
 
-        // display count
-        std::cout << "RailwayDB: " << RailwayDB->data.size() << std::endl;
-        std::cout << "StationDB: " << StationDB->data.size() << std::endl;
-        std::cout << "TrainDB: " << TrainDB->data.size() << std::endl;
+        DataManager &dm = DataManager::getInstance(RailwayDB->data, StationDB->data, TrainDB->data);
+        dm.display("db");
+
         return 0;
     }
 
-
     int test()
     {
-        database_v3::test();
+        using namespace model;
+        using namespace database_v3;
+
+        auto RailwayDB = Database<railway_, Railway_>::loadDB();
+        auto StationDB = Database<station_, Station_>::loadDB();
+        auto TrainDB = Database<train_, Train_>::loadDB();
+
+        DataManager &dm = DataManager::getInstance(RailwayDB->data, StationDB->data, TrainDB->data);
+        dm.display("db");
+
+        Edge_ *e1 = dm.edge_s_map[{1, 2}][0];
+        Edge &e2 = dm.edge_map[{2, 3}][0];
+        auto ___t = e2.weight(e1);
+        std::cout << "weight: " << ___t << std::endl;
+
+        // database_v3::test();
         return 0;
     }
 } // namespace preprocess_v2
