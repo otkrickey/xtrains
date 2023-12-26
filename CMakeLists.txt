@@ -16,10 +16,12 @@ add_executable(xtrains.exe
   src/api.cpp
   src/config.cpp
   src/db.cpp
+  src/database.cpp
   src/dijkstra.cpp
   src/main.cpp
   src/model.cpp
   src/preprocess.cpp
+  src/serialization.cpp
 )
 
 target_link_libraries(xtrains.exe CURL::libcurl)
