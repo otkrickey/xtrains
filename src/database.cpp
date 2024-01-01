@@ -31,7 +31,7 @@ namespace database_v3
     {
         auto rw_code = db.getCollection<std::string>("rw_code").data();
         auto name = db.getCollection<std::string>("name").data();
-        for (auto &rw : rw_code) { db.data[rw.first].rw_code = rw.second; }
+        for (auto &rw : rw_code) { db.data[rw.first].rw_code = rw.second; db.data[rw.first].id = rw.first; }
         for (auto &rw : name) { db.data[rw.first].name = rw.second; }
     }
 
@@ -52,7 +52,7 @@ namespace database_v3
         auto rw_code = db.getCollection<std::string>("rw_code").data();
         auto rw_st_num = db.getCollection<int>("rw_st_num").data();
         auto name = db.getCollection<std::string>("name").data();
-        for (auto &st : rw_code) { db.data[st.first].rw_code = st.second; }
+        for (auto &st : rw_code) { db.data[st.first].rw_code = st.second; db.data[st.first].id = st.first; }
         for (auto &st : rw_st_num) { db.data[st.first].rw_st_num = st.second; }
         for (auto &st : name) { db.data[st.first].name = st.second; }
     }
@@ -74,7 +74,7 @@ namespace database_v3
         auto code = db.getCollection<std::string>("code").data();
         auto rw_code = db.getCollection<std::string>("rw_code").data();
         auto stops = db.getCollection<std::map<station_, time_>>("stops").data();
-        for (auto &tr : code) { db.data[tr.first].code = tr.second; }
+        for (auto &tr : code) { db.data[tr.first].code = tr.second; db.data[tr.first].id = tr.first;}
         for (auto &tr : rw_code) { db.data[tr.first].rw_code = tr.second; }
         for (auto &tr : stops) { db.data[tr.first].stops = tr.second; }
     }

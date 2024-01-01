@@ -80,17 +80,19 @@ namespace model
 
     struct Edge
     {
-        station_ from;              /**< The starting station of the edge. */
-        station_ to;                /**< The ending station of the edge. */
-        railway_ railway_id;        /**< The ID of the railway. */
-        Edge_ *weight(Edge_ *prev); /**< The weight of the edge. */
+        train_ train_id;
+        station_ from;       /**< The starting station of the edge. */
+        station_ to;         /**< The ending station of the edge. */
+        railway_ railway_id; /**< The ID of the railway. */
+        // Edge_ *weight(Edge_ *prev); /**< The weight of the edge. */
     };
 
     struct Node
     {
         station_ id;           /**< The ID of the station. */
         time_ dist;            /**< The distance from the starting station. */
-        railway_ prev_railway; /**< The railway number of the previous edge. */
+        station_ prev_station; /**< The previous edge. */
+        train_ prev_train_id;  /**< The ID of the previous train. */
         bool operator>(const Node &rhs) const
         {
             return dist > rhs.dist;
@@ -114,7 +116,8 @@ namespace model
         std::map<railway_, Railway *> railways;
         std::map<station_, Station *> stations;
         std::map<train_, Train *> trains;
-        std::map<std::pair<station_, station_>, std::vector<Edge_ *>> edge_s_map;
+        // std::map<std::pair<station_, station_>, std::vector<Edge_ *>> edge_s_map;
+        std::map<std::pair<station_, station_>, std::map<train_, Edge_ *>> edge_s_map;
         std::map<std::pair<station_, station_>, Edge *> edge_map;
 
     private:
@@ -157,7 +160,7 @@ namespace model
             {
                 for (auto &e_ : e.second)
                 {
-                    delete e_;
+                    delete e_.second;
                 }
             }
         };
@@ -264,7 +267,7 @@ namespace model
                     e_->to = t->stops[i + 1]->id;
                     e_->departure = tr.second.stops[t->stops[i]->id];
                     e_->arrival = tr.second.stops[t->stops[i + 1]->id];
-                    edge_s_map[key].push_back(e_);
+                    edge_s_map[key][t->id] = e_;
                 }
             }
         }
@@ -294,7 +297,7 @@ namespace model
                             Edge *e = new Edge;
                             e->from = st1.first;
                             e->to = st2.first;
-                            e->railway_id = -1;
+                            e->railway_id = -2;
                             edge_map[key] = e;
                         }
                         Edge_ *e_ = new Edge_;
@@ -303,7 +306,7 @@ namespace model
                         e_->to = st2.first;
                         e_->departure = -1;
                         e_->arrival = -1;
-                        edge_s_map[key].push_back(e_);
+                        edge_s_map[key][-1] = e_;
                     }
                 }
             }
@@ -333,10 +336,24 @@ namespace model
                 for (auto &e_ : e.second)
                 {
                     edge_ofs << "  "
-                             << "tr-" << e_->train_id << " "
-                             << "d-" << e_->departure << " "
-                             << "a-" << e_->arrival << std::endl;
+                             << "tr-" << e_.second->train_id << " "
+                             << "d-" << e_.second->departure << " "
+                             << "a-" << e_.second->arrival << std::endl;
                 }
+            }
+
+            std::ofstream st_ofs("data/" + prefix + "_station.txt");
+            for (auto &st : station_map)
+            {
+                st_ofs << "st-" << st.first << " "
+                       << "rw-" << st.second.rw_st_num << " "
+                       << "name-" << st.second.name << std::endl;
+            }
+
+            int edge_count = 0;
+            for (auto &e : edge_s_map)
+            {
+                edge_count += e.second.size();
             }
 
             std::cout << "RailwayMapCount: " << railway_map.size() << std::endl;
@@ -348,7 +365,7 @@ namespace model
             std::cout << "TrainCount: " << trains.size() << std::endl;
             std::cout << std::endl;
             std::cout << "Edges_Count: " << edge_map.size() << std::endl;
-            std::cout << "Edge_s_Count: " << edge_s_map.size() << std::endl;
+            std::cout << "Edge_s_Count: " << edge_count << std::endl;
         };
     };
 } // namespace model

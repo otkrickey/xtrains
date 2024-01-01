@@ -136,26 +136,26 @@ namespace preprocess
     }
     int test()
     {
-        if (readOption("load_test_model"))
-        {
-            model::Manager m(model::__test__Railway_s, model::__test__Station_s, model::__test__Train_s);
-            m.display("test");
-            return 0;
-        }
+        // if (readOption("load_test_model"))
+        // {
+        //     model::Manager m(model::__test__Railway_s, model::__test__Station_s, model::__test__Train_s);
+        //     m.display("test");
+        //     return 0;
+        // }
 
-        if (readOption("load_api_model"))
-        {
-            database::railwayDB *RW_DB = database::railwayDB::getInstance();
-            database::stationDB *ST_DB = database::stationDB::getInstance();
-            database::trainDB *TR_DB = database::trainDB::getInstance();
+        // if (readOption("load_api_model"))
+        // {
+        //     database::railwayDB *RW_DB = database::railwayDB::getInstance();
+        //     database::stationDB *ST_DB = database::stationDB::getInstance();
+        //     database::trainDB *TR_DB = database::trainDB::getInstance();
 
-            auto _rws = RW_DB->get();
-            auto _sts = ST_DB->get();
-            auto _trs = TR_DB->get();
+        //     auto _rws = RW_DB->get();
+        //     auto _sts = ST_DB->get();
+        //     auto _trs = TR_DB->get();
 
-            model::Manager m(_rws, _sts, _trs);
-            m.display("db");
-        }
+        //     model::Manager m(_rws, _sts, _trs);
+        //     m.display("db");
+        // }
         return 0;
     }
 } // namespace preprocess
@@ -325,10 +325,10 @@ namespace preprocess_v2
         DataManager &dm = DataManager::getInstance(RailwayDB->data, StationDB->data, TrainDB->data);
         dm.display("db");
 
-        Edge_ *e1 = dm.edge_s_map[{1, 2}][0];
-        Edge &e2 = dm.edge_map[{2, 3}][0];
-        auto ___t = e2.weight(e1);
-        std::cout << "weight: " << ___t << std::endl;
+        // Edge_ *e1 = dm.edge_s_map[{1, 2}][0];
+        // Edge &e2 = dm.edge_map[{2, 3}][0];
+        // auto ___t = e2.weight(e1);
+        // std::cout << "weight: " << ___t << std::endl;
 
         // database_v3::test();
         return 0;
