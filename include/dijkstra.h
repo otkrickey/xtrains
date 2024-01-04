@@ -1,15 +1,13 @@
 #pragma once
 
+#include <algorithm>
+#include <climits>
 #include <iostream>
-#include <vector>
-#include "model.h"
 #include <map>
 #include <queue>
-#include <climits>
-#include <algorithm>
+#include <vector>
 
 #include "database.h"
-#include "db.h"
 #include "model.h"
 
 namespace dijkstra

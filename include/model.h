@@ -252,21 +252,25 @@ namespace model
                 Train *t = trains[tr.first];
                 for (int i = 0; i < t->stops.size() - 1; i++)
                 {
-                    std::pair<station_, station_> key = std::make_pair(t->stops[i]->id, t->stops[i + 1]->id);
+                    std::pair<station_, station_> key =
+                        tr.second.stops[t->stops[i]->id] < tr.second.stops[t->stops[i + 1]->id]
+                            ? std::make_pair(t->stops[i]->id, t->stops[i + 1]->id)
+                            : std::make_pair(t->stops[i + 1]->id, t->stops[i]->id);
                     if (edge_map.find(key) == edge_map.end())
                     {
                         Edge *e = new Edge;
-                        e->from = t->stops[i]->id;
-                        e->to = t->stops[i + 1]->id;
+                        e->train_id = t->id;
+                        e->from = key.first;
+                        e->to = key.second;
                         e->railway_id = t->railway_id;
                         edge_map[key] = e;
                     }
                     Edge_ *e_ = new Edge_;
                     e_->train_id = t->id;
-                    e_->from = t->stops[i]->id;
-                    e_->to = t->stops[i + 1]->id;
-                    e_->departure = tr.second.stops[t->stops[i]->id];
-                    e_->arrival = tr.second.stops[t->stops[i + 1]->id];
+                    e_->from = key.first;
+                    e_->to = key.second;
+                    e_->departure = tr.second.stops[key.first];
+                    e_->arrival = tr.second.stops[key.second];
                     edge_s_map[key][t->id] = e_;
                 }
             }
@@ -295,13 +299,14 @@ namespace model
                         if (edge_map.find(key) == edge_map.end())
                         {
                             Edge *e = new Edge;
+                            e->train_id = -2;
                             e->from = st1.first;
                             e->to = st2.first;
                             e->railway_id = -2;
                             edge_map[key] = e;
                         }
                         Edge_ *e_ = new Edge_;
-                        e_->train_id = -1;
+                        e_->train_id = -2;
                         e_->from = st1.first;
                         e_->to = st2.first;
                         e_->departure = -1;

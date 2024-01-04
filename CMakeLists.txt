@@ -15,7 +15,6 @@ include_directories(src)
 add_executable(xtrains.exe
   src/api.cpp
   src/config.cpp
-  src/db.cpp
   src/database.cpp
   src/dijkstra.cpp
   src/main.cpp

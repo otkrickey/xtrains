@@ -3,13 +3,14 @@
         "ODPT_CONSUMER_KEY": "2bbf82cd3d5647265c321eab3cd84ef0178ec8f4b472bf6655d13f4f11f92c67"
     },
     "mode": {
-        "dijkstra": false,
+        "dijkstra": true,
         "preprocess": true
     },
     "option": {
         "api": false,
         "test": true,
-        "load_test_model": true,
-        "load_api_model": false
+        "load_test_model": false,
+        "load_api_model": false,
+        "database_v3": true
     }
 }
