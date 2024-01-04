@@ -60,4 +60,8 @@ namespace database
         }
         return value;
     }
+
+    railwayDB *railwayDB::instance = nullptr;
+    stationDB *stationDB::instance = nullptr;
+    trainDB *trainDB::instance = nullptr;
 } // namespace database

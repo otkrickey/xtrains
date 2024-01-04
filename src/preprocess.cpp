@@ -1,9 +1,10 @@
 #include "../include/preprocess.h"
 
-namespace preprocess
+namespace preprocess_v2
 {
     using json = nlohmann::json;
 
+    // 07:00 -> 7 * 3600 + 0 * 60 = 25200
     int timeToSeconds(const std::string &time)
     {
         if (time.size() != 5 || time[2] != ':')
@@ -19,85 +20,89 @@ namespace preprocess
             throw std::invalid_argument("Invalid time");
         }
 
+        if (0 <= hours && hours < 3)
+            hours += 24;
+
         return hours * 3600 + minutes * 60;
     }
 
     int main()
     {
-        // save to DB
-        database::railwayDB RW_DB;
-        database::stationDB ST_DB;
-        database::trainDB TR_DB;
+        // 1. get railway data as json from API
+        //   - create RailwayDB
+        //   - create API query for StationDB & TrainDB
+        // 2. get station data as json from API
+        //   - create StationDB
+        // 3. get train data as json from API
+        //   - create TrainDB
+        using namespace model;
+        using namespace database_v3;
 
-        // get railway data as json
+        auto RailwayDB = Database<railway_, Railway_>::createDB();
+        auto StationDB = Database<station_, Station_>::createDB();
+        auto TrainDB = Database<train_, Train_>::createDB();
+
+        // 1. get railway data as json from API
         api::URLBuilder builder(api::Endpoint::Railway);
         builder.addQuery(api::Query::Operator, api::operator_map[api::Operator::TokyoMetro]);
         std::string res = api::getRequest(builder);
         json j = json::parse(res);
-
-        // add railway data to DB
-        model::railway_ railway_id = 0;
+        railway_ rw_id_counter = 0;
         for (const auto &RW : j)
         {
             if (RW.contains("odpt:lineCode") && RW.contains("owl:sameAs"))
             {
-                model::railway_code_ rw_code = RW["odpt:lineCode"].get<std::string>();
+                railway_code_ rw_code = RW["odpt:lineCode"].get<std::string>();
                 std::string name = RW["owl:sameAs"].get<std::string>();
-                RW_DB.add({railway_id, rw_code, name});
+                RailwayDB->add(rw_id_counter, {rw_id_counter, rw_code, name});
             }
-            railway_id++;
+            rw_id_counter++;
         }
-        RW_DB.save();
+        RailwayDB->save();
 
-        // get stations data as json
-        model::station_ station_id = 0;
-        for (const auto &[k, v] : RW_DB.get())
+        // 2. get station data as json from API
+        station_ st_id_counter = 0;
+        for (const auto &[k, v] : RailwayDB->data)
         {
-            // get station data as json
             api::URLBuilder builder(api::Endpoint::Station);
             builder.addQuery(api::Query::Railway, v.name);
             std::string res = api::getRequest(builder);
             json j = json::parse(res);
-
-            // add station data to DB
             for (const auto &ST : j)
             {
                 if (ST.contains("odpt:stationCode") && ST.contains("owl:sameAs"))
                 {
                     std::string st_code = ST["odpt:stationCode"].get<std::string>();
-                    model::railway_code_ rw_code = std::regex_replace(st_code, std::regex("\\d+"), "");
-                    model::railway_station_number_ rw_st_num = std::stoi(std::regex_replace(st_code, std::regex("\\D+"), ""));
+                    railway_code_ rw_code = std::regex_replace(st_code, std::regex("\\d+"), "");
+                    railway_station_number_ rw_st_num = std::stoi(std::regex_replace(st_code, std::regex("\\D+"), ""));
                     std::string name = ST["owl:sameAs"].get<std::string>();
-                    ST_DB.add({station_id, rw_code, rw_st_num, name});
+                    StationDB->add(st_id_counter, {st_id_counter, rw_code, rw_st_num, name});
                 }
-                station_id++;
+                st_id_counter++;
             }
         }
-        ST_DB.save();
+        StationDB->save();
 
-        // get trains data as json
+        // 3. get train data as json from API
         std::vector<api::Calendar> calendars = {
             api::Calendar::Weekday,
         };
-        model::train_ train_id = 0;
-        for (const auto &[k, v] : RW_DB.get())
+        train_ tr_id_counter = 0;
+        for (const auto &[k, v] : RailwayDB->data)
         {
             for (const auto &calendar : calendars)
             {
-                // get train data as json
                 api::URLBuilder builder(api::Endpoint::TrainTimetable);
                 builder.addQuery(api::Query::Railway, v.name);
                 builder.addQuery(api::Query::Calendar, api::calendar_map[calendar]);
                 std::string res = api::getRequest(builder);
                 json j = json::parse(res);
-
-                // add train data to DB
                 for (const auto &TR : j)
                 {
                     if (TR.contains("odpt:trainNumber") && TR.contains("odpt:trainTimetableObject"))
                     {
                         std::string code = TR["odpt:trainNumber"].get<std::string>();
-                        std::map<model::station_, model::time_> stops;
+                        std::map<station_, time_> stops;
                         json trainTimetable = TR["odpt:trainTimetableObject"];
                         for (const auto &station : trainTimetable)
                         {
@@ -105,57 +110,67 @@ namespace preprocess
                             {
                                 std::string st_name = station["odpt:departureStation"].get<std::string>();
                                 std::string time_str = station["odpt:departureTime"].get<std::string>();
-                                model::time_ time = timeToSeconds(time_str);
-                                model::station_ st_id = ST_DB.get("name", st_name).id;
+                                time_ time = timeToSeconds(time_str);
+                                station_ st_id;
+                                for (const auto &[k, v] : StationDB->data)
+                                {
+                                    if (v.name == st_name)
+                                    {
+                                        st_id = k;
+                                        break;
+                                    }
+                                }
                                 stops[st_id] = time;
                             }
                             else if (station.contains("odpt:arrivalStation") && station.contains("odpt:arrivalTime"))
                             {
                                 std::string st_name = station["odpt:arrivalStation"].get<std::string>();
                                 std::string time_str = station["odpt:arrivalTime"].get<std::string>();
-                                model::time_ time = timeToSeconds(time_str);
-                                model::station_ st_id = ST_DB.get("name", st_name).id;
+                                time_ time = timeToSeconds(time_str);
+                                station_ st_id;
+                                for (const auto &[k, v] : StationDB->data)
+                                {
+                                    if (v.name == st_name)
+                                    {
+                                        st_id = k;
+                                        break;
+                                    }
+                                }
                                 stops[st_id] = time;
                             }
                         }
-                        TR_DB.add({train_id, code, v.rw_code, stops});
+                        TrainDB->add(tr_id_counter, {tr_id_counter, code, v.rw_code, stops});
                     }
-                    train_id++;
+                    tr_id_counter++;
                 }
-                j.clear();
             }
         }
-        TR_DB.save();
+        TrainDB->save();
 
-        // display count
-        std::cout << "Railways: " << railway_id << std::endl;
-        std::cout << "Stations: " << station_id << std::endl;
-        std::cout << "Trains: " << train_id << std::endl;
+        DataManager &dm = DataManager::getInstance(RailwayDB->data, StationDB->data, TrainDB->data);
+        dm.display("db");
 
         return 0;
     }
+
     int test()
     {
-        if (readOption("load_test_model"))
-        {
-            model::Manager m(model::__test__Railway_s, model::__test__Station_s, model::__test__Train_s);
-            m.display("test");
-            return 0;
-        }
+        using namespace model;
+        using namespace database_v3;
 
-        if (readOption("load_api_model"))
-        {
-            database::railwayDB RW_DB;
-            database::stationDB ST_DB;
-            database::trainDB TR_DB;
+        auto RailwayDB = Database<railway_, Railway_>::loadDB();
+        auto StationDB = Database<station_, Station_>::loadDB();
+        auto TrainDB = Database<train_, Train_>::loadDB();
 
-            auto _rws = RW_DB.get();
-            auto _sts = ST_DB.get();
-            auto _trs = TR_DB.get();
+        DataManager &dm = DataManager::getInstance(RailwayDB->data, StationDB->data, TrainDB->data);
+        dm.display("db");
 
-            model::Manager m(_rws, _sts, _trs);
-            m.display("db");
-        }
+        // Edge_ *e1 = dm.edge_s_map[{1, 2}][0];
+        // Edge &e2 = dm.edge_map[{2, 3}][0];
+        // auto ___t = e2.weight(e1);
+        // std::cout << "weight: " << ___t << std::endl;
+
+        // database_v3::test();
         return 0;
     }
-} // namespace preprocess
+} // namespace preprocess_v2

@@ -122,9 +122,22 @@ namespace database
         baseDB<std::string> __name;
         std::map<railway_, Railway_> data;
 
-    public:
+    private:
+        static railwayDB *instance;
         railwayDB() : __char_id(databaseName, "rw_code"), __name(databaseName, "name")
         {
+        }
+
+    public:
+        railwayDB(const railwayDB &) = delete;
+        railwayDB &operator=(const railwayDB &) = delete;
+        static railwayDB *getInstance()
+        {
+            if (instance == nullptr)
+            {
+                instance = new railwayDB();
+            }
+            return instance;
         }
 
         void set(std::map<railway_, Railway_> data)
@@ -200,9 +213,22 @@ namespace database
         baseDB<std::string> __name;
         std::map<station_, Station_> data;
 
-    public:
+    private:
+        static stationDB *instance;
         stationDB() : __rw_code(databaseName, "rw_code"), __rw_st_num(databaseName, "rw_st_num"), __name(databaseName, "name")
         {
+        }
+
+    public:
+        stationDB(const stationDB &) = delete;
+        stationDB &operator=(const stationDB &) = delete;
+        static stationDB *getInstance()
+        {
+            if (instance == nullptr)
+            {
+                instance = new stationDB();
+            }
+            return instance;
         }
 
         void set(std::map<station_, Station_> data)
@@ -303,9 +329,22 @@ namespace database
         baseDB<std::map<station_, time_>> __stops;
         std::map<train_, Train_> data;
 
-    public:
+    private:
+        static trainDB *instance;
         trainDB() : __code(databaseName, "code"), __rw_code(databaseName, "rw_code"), __stops(databaseName, "stops")
         {
+        }
+
+    public:
+        trainDB(const trainDB &) = delete;
+        trainDB &operator=(const trainDB &) = delete;
+        static trainDB *getInstance()
+        {
+            if (instance == nullptr)
+            {
+                instance = new trainDB();
+            }
+            return instance;
         }
 
         void set(std::map<train_, Train_> data)
