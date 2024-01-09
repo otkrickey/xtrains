@@ -44,7 +44,8 @@ namespace model
         train_ id;                       /**< The ID of the train. */
         std::string code;                /**< The code of the train. */
         railway_code_ rw_code;           /**< The character of the railway. */
-        std::map<station_, time_> stops; /**< The stops of the train. */
+        std::map<int, station_> stops;   /**< The stops of the train. */
+        std::map<int, time_> stop_times; /**< The stop times of the train. */
     };
 
     struct Railway
@@ -98,11 +99,6 @@ namespace model
             return dist > rhs.dist;
         }
     };
-
-    // test data
-    extern std::map<railway_, Railway_> __test__Railway_s;
-    extern std::map<station_, Station_> __test__Station_s;
-    extern std::map<train_, Train_> __test__Train_s;
 
     // Data Manager - generate some data from 3 essential data
     class DataManager
@@ -236,7 +232,7 @@ namespace model
                 {
                     for (auto &stop : tr.second.stops)
                     {
-                        if (stop.first == s->id)
+                        if (stop.second == s->id)
                         {
                             Train *t = trains[tr.first];
                             t->stops.push_back(s); // add station to train
@@ -252,10 +248,7 @@ namespace model
                 Train *t = trains[tr.first];
                 for (int i = 0; i < t->stops.size() - 1; i++)
                 {
-                    std::pair<station_, station_> key =
-                        tr.second.stops[t->stops[i]->id] < tr.second.stops[t->stops[i + 1]->id]
-                            ? std::make_pair(t->stops[i]->id, t->stops[i + 1]->id)
-                            : std::make_pair(t->stops[i + 1]->id, t->stops[i]->id);
+                    std::pair<station_, station_> key = std::make_pair(tr.second.stops[i], tr.second.stops[i + 1]);
                     if (edge_map.find(key) == edge_map.end())
                     {
                         Edge *e = new Edge;
@@ -269,8 +262,8 @@ namespace model
                     e_->train_id = t->id;
                     e_->from = key.first;
                     e_->to = key.second;
-                    e_->departure = tr.second.stops[key.first];
-                    e_->arrival = tr.second.stops[key.second];
+                    e_->departure = tr.second.stop_times[i];
+                    e_->arrival = tr.second.stop_times[i + 1];
                     edge_s_map[key][t->id] = e_;
                 }
             }
@@ -361,6 +354,18 @@ namespace model
                 edge_count += e.second.size();
             }
 
+            std::ofstream ofs("data/" + prefix + "_edge_.txt");
+            for (auto &e : edge_s_map)
+            {
+                ofs << "(" << e.first.first << "," << e.first.second << "): ";
+                for (auto &e_ : e.second)
+                {
+                    ofs << e_.second->train_id << ",";
+                }
+                ofs << std::endl;
+            }
+
+            std::cout << "--------------------------" << std::endl;
             std::cout << "RailwayMapCount: " << railway_map.size() << std::endl;
             std::cout << "StationMapCount: " << station_map.size() << std::endl;
             std::cout << "TrainMapCount: " << train_map.size() << std::endl;
@@ -371,6 +376,8 @@ namespace model
             std::cout << std::endl;
             std::cout << "Edges_Count: " << edge_map.size() << std::endl;
             std::cout << "Edge_s_Count: " << edge_count << std::endl;
+            std::cout << "--------------------------" << std::endl
+                      << std::endl;
         };
     };
 } // namespace model

@@ -17,7 +17,6 @@
 namespace preprocess_v2
 {
     using json = nlohmann::json;
-    int timeToSeconds(const std::string &time);
     int main();
     int test();
 } // namespace preprocess_v2

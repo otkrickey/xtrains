@@ -48,14 +48,6 @@ namespace dijkstra
                     ? new Edge_({-2, currentNode.prev_station, currentNode.id, -2, currentNode.dist})
                     : new Edge_({-1, -1, currentNode.id, -1, currentNode.dist});
 
-            // !FOR DEBUG!
-            // std::cout << "currentNode: " << currentStationName
-            //           << " prevEdge: " << prevEdge->from << " -> " << prevEdge->to
-            //           << " train: " << prevEdge->train_id
-            //           << " arrival: " << prevEdge->arrival / 3600 << ":" << (prevEdge->arrival % 3600) / 60 << ":" << prevEdge->arrival % 60
-            //           << " departure: " << prevEdge->departure / 3600 << ":" << (prevEdge->departure % 3600) / 60 << ":" << prevEdge->departure % 60
-            //           << std::endl;
-
             for (auto &edge : graph[currentNode.id])
             {
                 std::pair<station_, station_> key = {edge.second->from, edge.second->to};
@@ -72,7 +64,8 @@ namespace dijkstra
                     {
                         // use below line if you want to use adaptive transfer time
                         // min = edge_.second->departure - edge_.second->arrival;
-                        min = transfer_time;
+                        // min = transfer_time;
+                        min = prevEdge->train_id == -1 ? 0 : transfer_time;
                         min_edge_ = new Edge_({-2, edge_.second->from, edge_.second->to, currentNode.dist, currentNode.dist + transfer_time});
                         break;
                     }
@@ -96,7 +89,7 @@ namespace dijkstra
                 if (min_edge_ != nullptr && min_edge_->arrival < shortestPaths[edge.second->to]->arrival)
                 {
                     shortestPaths[edge.second->to] = min_edge_;
-                    pq.push({edge.second->to, min_edge_->arrival, edge.second->from, edge.second->train_id});
+                    pq.push({edge.second->to, min_edge_->arrival, edge.second->from, min_edge_->train_id});
                 }
             }
         }
@@ -106,23 +99,25 @@ namespace dijkstra
     int main()
     {
         using namespace model;
+
+        clock_t start = clock();
+
         auto RailwayDB = database_v3::Database<railway_, Railway_>::loadDB();
         auto StationDB = database_v3::Database<station_, Station_>::loadDB();
         auto TrainDB = database_v3::Database<train_, Train_>::loadDB();
 
-        // real data
+        clock_t load = clock();
+        std::cout << "Load time: " << (double)(load - start) / CLOCKS_PER_SEC << "s" << std::endl;
+
         DataManager &dm = DataManager::getInstance(RailwayDB->data, StationDB->data, TrainDB->data);
-        station_ startStationId = 6;
-        station_ endStationId = 90;
-        time_ startTime = 18 * 60 * 60;
 
-        // test data
-        // DataManager &dm = DataManager::getInstance(model::__test__Railway_s, model::__test__Station_s, model::__test__Train_s);
-        // station_ startStationId = 3;
-        // station_ endStationId = 7;
-        // time_ startTime = 10 * 60 * 60;
+        clock_t init = clock();
+        std::cout << "Init time: " << (double)(init - load) / CLOCKS_PER_SEC << "s" << std::endl;
 
-        dm.display("db");
+        auto [startStationId, endStationId, startTime] = readDijkstraOptions();
+
+        clock_t read = clock();
+        std::cout << "Read time: " << (double)(read - init) / CLOCKS_PER_SEC << "s" << std::endl;
 
         Graph graph;
         for (auto &e : dm.edge_map)
@@ -130,37 +125,58 @@ namespace dijkstra
             graph[e.second->from][e.second->to] = e.second;
         }
 
+        clock_t graph_ = clock();
+        std::cout << "Graph time: " << (double)(graph_ - read) / CLOCKS_PER_SEC << "s" << std::endl;
+
+        std::cout << "Start Dijkstra" << std::endl;
         ShortestPath shortestPaths = dijkstra(graph, startStationId, endStationId, startTime);
+        clock_t end = clock();
+        std::cout << "End Dijkstra" << std::endl;
+        std::cout << "Time: " << (double)(end - graph_) / CLOCKS_PER_SEC << "s" << std::endl;
 
-        // 結果を表示 !FIXME!@Baketsu150L!
-        // std::cout << "Shortest path from station "
-        //           << dm.station_map[startStationId].name
-        //           << " to station "
-        //           << dm.station_map[endStationId].name
-        //           << ":" << std::endl;
+        // 結果を表示
+        std::cout << "Shortest path from station "
+                  << dm.station_map[startStationId].name
+                  << " to station "
+                  << dm.station_map[endStationId].name
+                  << ":" << std::endl;
 
-        // for (auto &path : shortestPaths)
-        // {
-        //     if (path.second->train_id != -1 && path.second->train_id != -2)
-        //     {
-        //         std::string rw_name = dm.railway_map[dm.trains[path.second->train_id]->railway_id].name;
-        //         std::string st_name = dm.station_map[path.second->to].name;
-        //         time_ td = path.second->departure;
-        //         time_ ta = path.second->arrival;
-        //         std::cout << "st-" << dm.station_map[path.second->from].name
-        //                   << " -> "
-        //                   << "rw-" << dm.railway_map[dm.trains[path.second->train_id]->railway_id].name
-        //                   << " -> "
-        //                   << " st-" << dm.station_map[path.second->to].name
-        //                   << " time " << td / 3600 << ":" << (td % 3600) / 60 << ":" << td % 60
-        //                   << " -> "
-        //                   << " time " << ta / 3600 << ":" << (ta % 3600) / 60 << ":" << ta % 60
-        //                   << std::endl;
-        //     }
-        //     // std::cout << "    st-" << path.second->from << " -> st-" << path.second->to
-        //     //           << " train-" << path.second->train_id
-        //     //           << std::endl;
-        // }
+        std::vector<model::Edge_ *> shortestPaths_;
+        station_ currentStationId = endStationId;
+
+        while (currentStationId != startStationId)
+        {
+            for (auto &path : shortestPaths)
+            {
+                if (path.second->to == currentStationId)
+                {
+                    shortestPaths_.push_back(path.second);
+                    currentStationId = path.second->from;
+                    break;
+                }
+            }
+        }
+
+        for (auto &path : shortestPaths_)
+        {
+            if (path->train_id != -1 && path->train_id != -2)
+            {
+                std::string rw_name = dm.railway_map[dm.trains[path->train_id]->railway_id].name;
+                std::string st_name = dm.station_map[path->to].name;
+                time_ td = path->departure;
+                time_ ta = path->arrival;
+                std::cout << "st-" << dm.station_map[path->from].name
+                          << " -> "
+                          << "rw-" << dm.railway_map[dm.trains[path->train_id]->railway_id].name
+                          << " -> "
+                          << " st-" << dm.station_map[path->to].name
+                          << " time " << td / 3600 << ":" << (td % 3600) / 60 << ":" << td % 60
+                          << " -> "
+                          << " time " << ta / 3600 << ":" << (ta % 3600) / 60 << ":" << ta % 60
+                          << std::endl;
+            }
+        }
+
         return 0;
     }
 }

@@ -4,28 +4,6 @@ namespace preprocess_v2
 {
     using json = nlohmann::json;
 
-    // 07:00 -> 7 * 3600 + 0 * 60 = 25200
-    int timeToSeconds(const std::string &time)
-    {
-        if (time.size() != 5 || time[2] != ':')
-        {
-            throw std::invalid_argument("Invalid time format");
-        }
-
-        int hours = (time[0] - '0') * 10 + (time[1] - '0');
-        int minutes = (time[3] - '0') * 10 + (time[4] - '0');
-
-        if (hours < 0 || hours >= 24 || minutes < 0 || minutes >= 60)
-        {
-            throw std::invalid_argument("Invalid time");
-        }
-
-        if (0 <= hours && hours < 3)
-            hours += 24;
-
-        return hours * 3600 + minutes * 60;
-    }
-
     int main()
     {
         // 1. get railway data as json from API
@@ -102,7 +80,9 @@ namespace preprocess_v2
                     if (TR.contains("odpt:trainNumber") && TR.contains("odpt:trainTimetableObject"))
                     {
                         std::string code = TR["odpt:trainNumber"].get<std::string>();
-                        std::map<station_, time_> stops;
+                        int stops_counter = 0;
+                        std::map<int, station_> stops;
+                        std::map<int, time_> stop_times;
                         json trainTimetable = TR["odpt:trainTimetableObject"];
                         for (const auto &station : trainTimetable)
                         {
@@ -120,7 +100,8 @@ namespace preprocess_v2
                                         break;
                                     }
                                 }
-                                stops[st_id] = time;
+                                stops[stops_counter] = st_id;
+                                stop_times[stops_counter] = time;
                             }
                             else if (station.contains("odpt:arrivalStation") && station.contains("odpt:arrivalTime"))
                             {
@@ -136,10 +117,12 @@ namespace preprocess_v2
                                         break;
                                     }
                                 }
-                                stops[st_id] = time;
+                                stops[stops_counter] = st_id;
+                                stop_times[stops_counter] = time;
                             }
+                            stops_counter++;
                         }
-                        TrainDB->add(tr_id_counter, {tr_id_counter, code, v.rw_code, stops});
+                        TrainDB->add(tr_id_counter, {tr_id_counter, code, v.rw_code, stops, stop_times});
                     }
                     tr_id_counter++;
                 }
@@ -165,12 +148,6 @@ namespace preprocess_v2
         DataManager &dm = DataManager::getInstance(RailwayDB->data, StationDB->data, TrainDB->data);
         dm.display("db");
 
-        // Edge_ *e1 = dm.edge_s_map[{1, 2}][0];
-        // Edge &e2 = dm.edge_map[{2, 3}][0];
-        // auto ___t = e2.weight(e1);
-        // std::cout << "weight: " << ___t << std::endl;
-
-        // database_v3::test();
         return 0;
     }
 } // namespace preprocess_v2
