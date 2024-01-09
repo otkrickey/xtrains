@@ -66,17 +66,20 @@ namespace database_v3
     {
         db.createCollection<std::string>("code", data, [](const Train_ &model) { return model.code; });
         db.createCollection<std::string>("rw_code", data, [](const Train_ &model) { return model.rw_code; });
-        db.createCollection<std::map<station_, time_>>("stops", data, [](const Train_ &model) { return model.stops; });
+        db.createCollection<std::map<int, station_>>("stops", data, [](const Train_ &model) { return model.stops; });
+        db.createCollection<std::map<int, time_>>("stop_times", data, [](const Train_ &model) { return model.stop_times; });
     }
     template <>
     void Database<train_, Train_>::update()
     {
         auto code = db.getCollection<std::string>("code").data();
         auto rw_code = db.getCollection<std::string>("rw_code").data();
-        auto stops = db.getCollection<std::map<station_, time_>>("stops").data();
+        auto stops = db.getCollection<std::map<int, station_>>("stops").data();
+        auto stop_times = db.getCollection<std::map<int, time_>>("stop_times").data();
         for (auto &tr : code) { db.data[tr.first].code = tr.second; db.data[tr.first].id = tr.first;}
         for (auto &tr : rw_code) { db.data[tr.first].rw_code = tr.second; }
         for (auto &tr : stops) { db.data[tr.first].stops = tr.second; }
+        for (auto &tr : stop_times) { db.data[tr.first].stop_times = tr.second; }
     }
 
     int test()
