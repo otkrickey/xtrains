@@ -157,8 +157,9 @@ namespace dijkstra
             }
         }
 
-        for (auto &path : shortestPaths_)
+        for (int i = 0; i < shortestPaths_.size(); i++)
         {
+            auto path = shortestPaths_[shortestPaths_.size() - 1 - i];
             if (path->train_id != -1 && path->train_id != -2)
             {
                 std::string rw_name = dm.railway_map[dm.trains[path->train_id]->railway_id].name;

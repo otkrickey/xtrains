@@ -11,8 +11,8 @@
         "test": true
     },
     "dijkstra": {
-        "start": 132,
-        "end": 53,
+        "start": 6,
+        "end": 90,
         "time": {
             "h": 18,
             "m": 0,
